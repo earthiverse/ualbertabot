@@ -1,7 +1,11 @@
-UAlbertaBot - StarCraft AI Competition Bot
+Micro Buro - StarCraft AI Competition Bot based on UAlbertaBot
 
-Author:  David Churchill (dave.churchill@gmail.com)
+Authors:
+* Ross Cockburn
+* Carson McLean
+* Kent Rasmussen
+* Tian Wang
 
-Please check out the [Wiki](https://github.com/davechurchill/ualbertabot/wiki) for full instructions and documentation!
+Original Author:  David Churchill (dave.churchill@gmail.com)
 
-Please consider the code in this repository as unstable research code. Stable releases can be found in the [stable release section](https://github.com/davechurchill/ualbertabot/tree/master/binary_stable_releases). Note that the instructions included in the wiki may not be correct for older binary releases.
+Please check out the [UAlbertaBot Wiki](https://github.com/davechurchill/ualbertabot/wiki) for full instructions and documentation!
