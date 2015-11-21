@@ -158,17 +158,17 @@ void ProductionManager::manageBuildOrderQueue()
 		}
 
 		// if the next item in the list is a building and we can't yet make it
-        if (currentItem.metaType.isBuilding() && !(producer && canMake) && currentItem.metaType.whatBuilds().isWorker())
-		{
-			// construct a temporary building object
-			Building b(currentItem.metaType.getUnitType(), BWAPI::Broodwar->self()->getStartLocation());
-            b.isGasSteal = currentItem.isGasSteal;
+    if (currentItem.metaType.isBuilding() && !(producer && canMake) && currentItem.metaType.whatBuilds().isWorker())
+    {
+				// construct a temporary building object
+				Building b(currentItem.metaType.getUnitType(), BWAPI::Broodwar->self()->getStartLocation());
+				b.isGasSteal = currentItem.isGasSteal;
 
-			// set the producer as the closest worker, but do not set its job yet
-			producer = WorkerManager::Instance().getBuilder(b, false);
+				// set the producer as the closest worker, but do not set its job yet
+				producer = WorkerManager::Instance().getBuilder(b, false);
 
-			// predict the worker movement to that building location
-			predictWorkerMovement(b);
+				// predict the worker movement to that building location
+				predictWorkerMovement(b);
 		}
 
 		// if we can make the current item
@@ -339,6 +339,8 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
         && t.getUnitType() != BWAPI::UnitTypes::Zerg_Lair 
         && t.getUnitType() != BWAPI::UnitTypes::Zerg_Hive
         && t.getUnitType() != BWAPI::UnitTypes::Zerg_Greater_Spire
+		    && t.getUnitType() != BWAPI::UnitTypes::Zerg_Sunken_Colony
+		    && t.getUnitType() != BWAPI::UnitTypes::Zerg_Spore_Colony
         && !t.getUnitType().isAddon())
     {
         // send the building task to the building manager
@@ -358,7 +360,7 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
             producer->morph(t.getUnitType());
         // if not, train the unit
         } 
-        else 
+        else  
         {
             producer->train(t.getUnitType());
         }
@@ -444,7 +446,7 @@ bool ProductionManager::detectBuildOrderDeadlock()
             return false;
         }
         else
-        {
+		{
 		    return true;
         }
 	}
