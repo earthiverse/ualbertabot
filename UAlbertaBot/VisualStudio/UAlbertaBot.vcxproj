@@ -137,6 +137,7 @@
     <ClCompile Include="..\source\MicroManager.cpp" />
     <ClCompile Include="..\Source\Config.cpp" />
     <ClCompile Include="..\Source\Micro.cpp" />
+    <ClCompile Include="..\Source\OverlordManager.cpp" />
     <ClCompile Include="..\Source\ParseUtils.cpp" />
     <ClCompile Include="..\source\ProductionManager.cpp" />
     <ClCompile Include="..\source\RangedManager.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="..\source\MicroManager.h" />
     <ClInclude Include="..\Source\Config.h" />
     <ClInclude Include="..\Source\Micro.h" />
+    <ClInclude Include="..\Source\OverlordManager.h" />
     <ClInclude Include="..\Source\ParseUtils.h" />
     <ClInclude Include="..\source\ProductionManager.h" />
     <ClInclude Include="..\source\RangedManager.h" />
@@ -195,6 +197,10 @@
     <ClInclude Include="..\Source\UnitUtil.h" />
     <ClInclude Include="..\source\WorkerData.h" />
     <ClInclude Include="..\source\WorkerManager.h" />
+    <ClInclude Include="Header.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -245,7 +245,7 @@ BWAPI::Unit ScoutManager::closestEnemyWorker()
 	BWAPI::Unit enemyWorker = nullptr;
 	double maxDist = 0;
 
-	
+
 	BWAPI::Unit geyser = getEnemyGeyser();
 	
 	for (auto & unit : BWAPI::Broodwar->enemy()->getUnits())

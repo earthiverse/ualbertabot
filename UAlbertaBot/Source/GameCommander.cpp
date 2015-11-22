@@ -56,6 +56,9 @@ void GameCommander::update()
     ScoutManager::Instance().update();
 	_timerManager.stopTimer(TimerManager::Scout);
 		
+	// TODO make overlord timer
+	_overlordManager.update(_overlords);
+
 	_timerManager.stopTimer(TimerManager::All);
 
 	drawDebugInterface();
@@ -111,6 +114,7 @@ void GameCommander::handleUnitAssignments()
 {
 	_validUnits.clear();
     _combatUnits.clear();
+	_overlords.clear();
 
 	// filter our units for those which are valid and usable
 	setValidUnits();
@@ -118,11 +122,12 @@ void GameCommander::handleUnitAssignments()
 	// set each type of unit
 	setScoutUnits();
 	setCombatUnits();
+	setOverlords();
 }
 
 bool GameCommander::isAssigned(BWAPI::Unit unit) const
 {
-	return _combatUnits.contains(unit) || _scoutUnits.contains(unit);
+	return _combatUnits.contains(unit) || _scoutUnits.contains(unit) || _overlords.contains(unit);
 }
 
 // validates units as usable for distribution to various managers
@@ -140,10 +145,10 @@ void GameCommander::setValidUnits()
 
 void GameCommander::setScoutUnits()
 {
-    // if we haven't set a scout unit, do it
-    if (_scoutUnits.empty() && !_initialScoutSet)
-    {
-        BWAPI::Unit supplyProvider = getFirstSupplyProvider();
+	// if we haven't set a scout unit, do it
+	if (_scoutUnits.empty() && !_initialScoutSet)
+	{
+		BWAPI::Unit supplyProvider = getFirstSupplyProvider();
 
 		// if it exists
 		if (supplyProvider)
@@ -154,22 +159,34 @@ void GameCommander::setScoutUnits()
 			// if we find a worker (which we should) add it to the scout units
 			if (workerScout)
 			{
-                ScoutManager::Instance().setWorkerScout(workerScout);
+				ScoutManager::Instance().setWorkerScout(workerScout);
 				assignUnit(workerScout, _scoutUnits);
-                _initialScoutSet = true;
+				_initialScoutSet = true;
 			}
 		}
-    }
+	}
+
 }
 
 // sets combat units to be passed to CombatCommander
 void GameCommander::setCombatUnits()
 {
-	for (auto & unit : _validUnits)
+	for (auto & unit : _validUnits)  
 	{
 		if (!isAssigned(unit) && UnitUtil::IsCombatUnit(unit) || unit->getType().isWorker())		
 		{	
 			assignUnit(unit, _combatUnits);
+		}
+	}
+}
+
+void GameCommander::setOverlords()
+{
+	for (auto & unit : _validUnits)
+	{
+		if (!isAssigned(unit) && unit->getType() == BWAPI::UnitTypes::Zerg_Overlord)
+		{
+			assignUnit(unit, _overlords);
 		}
 	}
 }
@@ -288,6 +305,7 @@ void GameCommander::assignUnit(BWAPI::Unit unit, BWAPI::Unitset & set)
 {
     if (_scoutUnits.contains(unit)) { _scoutUnits.erase(unit); }
     else if (_combatUnits.contains(unit)) { _combatUnits.erase(unit); }
+	else if (_overlords.contains(unit)) { _overlords.erase(unit); }
 
     set.insert(unit);
 }

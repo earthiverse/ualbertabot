@@ -10,6 +10,7 @@
 #include "ScoutManager.h"
 #include "StrategyManager.h"
 #include "TimerManager.h"
+#include "OverlordManager.h"
 
 namespace UAlbertaBot
 {
@@ -32,11 +33,13 @@ public:
 class GameCommander 
 {
 	CombatCommander		    _combatCommander;
+	OverlordManager			_overlordManager;
 	TimerManager		    _timerManager;
 
 	BWAPI::Unitset          _validUnits;
 	BWAPI::Unitset          _combatUnits;
 	BWAPI::Unitset          _scoutUnits;
+	BWAPI::Unitset          _overlords;
 
     bool                    _initialScoutSet;
 
@@ -54,6 +57,7 @@ public:
 	void setValidUnits();
 	void setScoutUnits();
 	void setCombatUnits();
+	void setOverlords();
 
 	void drawDebugInterface();
     void drawGameInformation(int x, int y);
