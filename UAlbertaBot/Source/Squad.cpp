@@ -56,19 +56,20 @@ void Squad::update()
         
 		_meleeManager.regroup(regroupPosition);
 		_rangedManager.regroup(regroupPosition);
-        _tankManager.regroup(regroupPosition);
-        _medicManager.regroup(regroupPosition);
+    _tankManager.regroup(regroupPosition);
+    _medicManager.regroup(regroupPosition);
 	}
 	else // otherwise, execute micro
 	{
 		_meleeManager.execute(_order);
 		_rangedManager.execute(_order);
-        _tankManager.execute(_order);
-        _medicManager.execute(_order);
+    _tankManager.execute(_order);
+    _medicManager.execute(_order);
 		_transportManager.update();
 
 		_detectorManager.setUnitClosestToEnemy(unitClosestToEnemy());
 		_detectorManager.execute(_order);
+    _lurkerManager.execute(_order);
 	}
 }
 
@@ -143,38 +144,46 @@ void Squad::addUnitsToMicroManagers()
 	BWAPI::Unitset rangedUnits;
 	BWAPI::Unitset detectorUnits;
 	BWAPI::Unitset transportUnits;
-    BWAPI::Unitset tankUnits;
-    BWAPI::Unitset medicUnits;
+  BWAPI::Unitset tankUnits;
+  BWAPI::Unitset medicUnits;
+  BWAPI::Unitset lurkerUnits;
 
 	// add _units to micro managers
 	for (auto & unit : _units)
 	{
 		if(unit->isCompleted() && unit->getHitPoints() > 0 && unit->exists())
 		{
-			// select dector _units
-            if (unit->getType() == BWAPI::UnitTypes::Terran_Medic)
-            {
-                medicUnits.insert(unit);
-            }
-            else if (unit->getType() == BWAPI::UnitTypes::Terran_Siege_Tank_Siege_Mode || unit->getType() == BWAPI::UnitTypes::Terran_Siege_Tank_Tank_Mode)
-            {
-                tankUnits.insert(unit);
-            }   
+			// Special Unit Types
+      // Medics
+      if (unit->getType() == BWAPI::UnitTypes::Terran_Medic)
+      {
+          medicUnits.insert(unit);
+      }
+      // Tanks
+      else if (unit->getType() == BWAPI::UnitTypes::Terran_Siege_Tank_Siege_Mode || unit->getType() == BWAPI::UnitTypes::Terran_Siege_Tank_Tank_Mode)
+      {
+          tankUnits.insert(unit);
+      }
+      // Lurkers
+      else if (unit->getType() == BWAPI::UnitTypes::Zerg_Lurker) {
+        lurkerUnits.insert(unit);
+      }
+      // Detectors
 			else if (unit->getType().isDetector() && !unit->getType().isBuilding())
 			{
 				detectorUnits.insert(unit);
 			}
-			// select transport _units
+			// Transporters
 			else if (unit->getType() == BWAPI::UnitTypes::Protoss_Shuttle || unit->getType() == BWAPI::UnitTypes::Terran_Dropship)
 			{
 				transportUnits.insert(unit);
 			}
-			// select ranged _units
+			// Ranged Units
 			else if ((unit->getType().groundWeapon().maxRange() > 32) || (unit->getType() == BWAPI::UnitTypes::Protoss_Reaver) || (unit->getType() == BWAPI::UnitTypes::Zerg_Scourge))
 			{
 				rangedUnits.insert(unit);
 			}
-			// select melee _units
+			// Melee Units
 			else if (unit->getType().groundWeapon().maxRange() <= 32)
 			{
 				meleeUnits.insert(unit);
@@ -186,8 +195,9 @@ void Squad::addUnitsToMicroManagers()
 	_rangedManager.setUnits(rangedUnits);
 	_detectorManager.setUnits(detectorUnits);
 	_transportManager.setUnits(transportUnits);
-    _tankManager.setUnits(tankUnits);
-    _medicManager.setUnits(medicUnits);
+  _tankManager.setUnits(tankUnits);
+  _medicManager.setUnits(medicUnits);
+  _lurkerManager.setUnits(lurkerUnits);
 }
 
 // calculates whether or not to regroup
