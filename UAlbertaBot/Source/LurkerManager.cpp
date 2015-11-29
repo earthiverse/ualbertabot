@@ -46,18 +46,7 @@ void LurkerManager::executeMicro(const BWAPI::Unitset& targets) {
     }
 
     // We're on the offensive!
-    if (order_type == SquadOrderTypes::Attack) {
-      if (lurker->isBurrowed())
-        lurker->unburrow();
-      else
-        lurker->move(order_position);
-      continue;
-    }
-
-    // We're on the defensive!
-    if (order_type == SquadOrderTypes::Defend) {
-      BWAPI::Broodwar->printf("We're defending");
-      // Fall back!
+    if (order_type == SquadOrderTypes::Attack || order_type == SquadOrderTypes::Defend) {
       if (lurker->isBurrowed())
         lurker->unburrow();
       else

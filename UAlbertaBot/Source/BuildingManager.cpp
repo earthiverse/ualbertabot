@@ -2,6 +2,7 @@
 #include "BuildingManager.h"
 #include "Micro.h"
 #include "ScoutManager.h"
+#include "UnitUtil.h"
 
 using namespace UAlbertaBot;
 
@@ -421,10 +422,28 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
 
     if (b.type.isResourceDepot())
     {
-        // get the location 
-        BWAPI::TilePosition tile = MapTools::Instance().getNextExpansion();
+      // get the location
+      // Make every other base for zerg a macro hatch.
+      bool is_macro = false;
+      if (BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Zerg) {
+        int num_mains = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hatchery) + UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Lair) + UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hive);
+        if (num_mains % 2 == 1)
+          is_macro = true;
+      }
 
+      if (!is_macro) {
+        BWAPI::TilePosition tile = MapTools::Instance().getNextExpansion();
         return tile;
+      }
+    }
+
+    if (b.type == BWAPI::UnitTypes::Zerg_Creep_Colony) {
+      // Half way between start and choke.
+      BWAPI::TilePosition startLocation = BWAPI::Broodwar->self()->getStartLocation();
+      BWAPI::TilePosition chokeLocation = BWAPI::TilePosition(BWTA::getNearestChokepoint(startLocation)->getCenter());
+
+      // IS THIS HOW I AVERAGE POINTS? HAHA, LET'S SEE.
+      return BWAPI::Broodwar->getBuildLocation(b.type, chokeLocation, 64, true);
     }
 
     // set the building padding specifically

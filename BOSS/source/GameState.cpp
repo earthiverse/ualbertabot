@@ -1139,7 +1139,7 @@ bool GameState::whyIsNotLegal(const ActionType & action) const
         return false;
     }
 
-    // if we have no mineral income we'll never have a minerla unit
+    // if we have no mineral income we'll never have a mineral unit
     if (!canAffordMinerals(action) && !_units.hasMineralIncome())
     {
         std::cout << "WhyNotLegal: " << action.getName() << " - No mineral income" << std::endl;
