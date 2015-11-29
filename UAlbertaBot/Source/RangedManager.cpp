@@ -15,6 +15,7 @@ void RangedManager::executeMicro(const BWAPI::Unitset & targets)
 
 void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
 {
+	//BWAPI::Broodwar->printf("RangedManager::assignTargetsOld");
     const BWAPI::Unitset & rangedUnits = getUnits();
 
 	// figure out targets
@@ -23,8 +24,18 @@ void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
 
     for (auto & rangedUnit : rangedUnits)
 	{
+		
 		// train sub units such as scarabs or interceptors
 		//trainSubUnits(rangedUnit);
+
+		for (auto & target : rangedUnitTargets) {
+			if (rangedUnit->getDistance(target) < UnitUtil::GetAttackRange(rangedUnit, target)) {
+				if (rangedUnit->getGroundWeaponCooldown() == 0) {
+					BWAPI::Broodwar->printf("Aggressive attack");
+					Micro::SmartAttackUnit(rangedUnit, target);
+				}
+			}
+		}
 
 		// if the order is to attack or defend
 		if (order.getType() == SquadOrderTypes::Attack || order.getType() == SquadOrderTypes::Defend) 
