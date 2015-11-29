@@ -156,6 +156,9 @@
     <ClCompile Include="..\Source\OverlordManager.cpp">
       <Filter>game\combat\micro</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\LurkerManager.cpp">
+      <Filter>game\combat\micro</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\CombatCommander.h">
@@ -280,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="Header.h" />
     <ClInclude Include="..\Source\OverlordManager.h">
+      <Filter>game\combat\micro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\LurkerManager.h">
       <Filter>game\combat\micro</Filter>
     </ClInclude>
   </ItemGroup>

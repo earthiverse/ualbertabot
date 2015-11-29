@@ -129,6 +129,7 @@
     <ClCompile Include="..\Source\InformationManager.cpp" />
     <ClCompile Include="..\source\JSONTools.cpp" />
     <ClCompile Include="..\Source\Logger.cpp" />
+    <ClCompile Include="..\Source\LurkerManager.cpp" />
     <ClCompile Include="..\Source\MapGrid.cpp" />
     <ClCompile Include="..\Source\MapTools.cpp" />
     <ClCompile Include="..\Source\MedicManager.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="..\Source\InformationManager.h" />
     <ClInclude Include="..\source\JSONTools.h" />
     <ClInclude Include="..\Source\Logger.h" />
+    <ClInclude Include="..\Source\LurkerManager.h" />
     <ClInclude Include="..\Source\MapGrid.h" />
     <ClInclude Include="..\Source\MapTools.h" />
     <ClInclude Include="..\Source\MedicManager.h" />
