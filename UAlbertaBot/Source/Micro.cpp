@@ -243,10 +243,11 @@ void Micro::SmartKiteTarget(BWAPI::Unit rangedUnit, BWAPI::Unit target)
     bool kiteLonger = Config::Micro::KiteLongerRangedUnits.find(rangedUnit->getType()) != Config::Micro::KiteLongerRangedUnits.end();
 	if (!kiteLonger && (range <= target->getType().groundWeapon().maxRange()))
 	{
-		// if we can't kite it, there's no point
+		//if we can't kite it, there's no point
 		Micro::SmartAttackUnit(rangedUnit, target);
 		return;
 	}
+
 
 	bool    kite(true);
 	double  dist(rangedUnit->getDistance(target));
@@ -273,13 +274,15 @@ void Micro::SmartKiteTarget(BWAPI::Unit rangedUnit, BWAPI::Unit target)
 	// if we can't shoot, run away
 	if (kite)
 	{
+		//BWAPI::Broodwar->printf("Kite");
 		BWAPI::Position fleePosition(rangedUnit->getPosition() - target->getPosition() + rangedUnit->getPosition());
-		//BWAPI::Broodwar->drawLineMap(rangedUnit->getPosition(), fleePosition, BWAPI::Colors::Cyan);
+		BWAPI::Broodwar->drawLineMap(rangedUnit->getPosition(), fleePosition, BWAPI::Colors::Cyan);
 		Micro::SmartMove(rangedUnit, fleePosition);
 	}
 	// otherwise shoot
 	else
 	{
+		//BWAPI::Broodwar->printf("Not kite");
 		Micro::SmartAttackUnit(rangedUnit, target);
 	}
 }

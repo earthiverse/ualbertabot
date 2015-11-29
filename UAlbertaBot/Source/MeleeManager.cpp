@@ -15,6 +15,7 @@ void MeleeManager::executeMicro(const BWAPI::Unitset & targets)
 
 void MeleeManager::assignTargetsOld(const BWAPI::Unitset & targets)
 {
+	//BWAPI::Broodwar->printf("MeleeManager::assignTargetsOld");
     const BWAPI::Unitset & meleeUnits = getUnits();
 
 	// figure out targets
@@ -41,6 +42,7 @@ void MeleeManager::assignTargetsOld(const BWAPI::Unitset & targets)
             // run away if we meet the retreat critereon
             if (meleeUnitShouldRetreat(meleeUnit, targets))
             {
+				BWAPI::Broodwar->printf("Melee Retreat");
                 BWAPI::Position fleeTo(BWAPI::Broodwar->self()->getStartLocation());
 
                 Micro::SmartMove(meleeUnit, fleeTo);
