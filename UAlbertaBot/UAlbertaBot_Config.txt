@@ -80,7 +80,7 @@
     {
         "Protoss"                   : "Protoss_ZealotRush",
         "Terran"                    : "Terran_MarineRush",
-        "Zerg"                      : "Zerg_3HatchMuta",
+        "Zerg"                      : "Zerg_ZerglingRush",
         
         "ScoutGasSteal"             : false,
         "ScoutHarassEnemy"          : true,

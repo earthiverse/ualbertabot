@@ -70,6 +70,7 @@ void Squad::update()
 		_detectorManager.setUnitClosestToEnemy(unitClosestToEnemy());
 		_detectorManager.execute(_order);
     _lurkerManager.execute(_order);
+	_zerglingManager.execute(_order);
 	}
 }
 
@@ -147,6 +148,7 @@ void Squad::addUnitsToMicroManagers()
   BWAPI::Unitset tankUnits;
   BWAPI::Unitset medicUnits;
   BWAPI::Unitset lurkerUnits;
+  BWAPI::Unitset zerglingUnits;
 
 	// add _units to micro managers
 	for (auto & unit : _units)
@@ -168,6 +170,9 @@ void Squad::addUnitsToMicroManagers()
       else if (unit->getType() == BWAPI::UnitTypes::Zerg_Lurker) {
         lurkerUnits.insert(unit);
       }
+	  else if (unit->getType() == BWAPI::UnitTypes::Zerg_Zergling) {
+		  zerglingUnits.insert(unit);
+	  }
       // Detectors
 			else if (unit->getType().isDetector() && !unit->getType().isBuilding())
 			{
@@ -198,6 +203,7 @@ void Squad::addUnitsToMicroManagers()
   _tankManager.setUnits(tankUnits);
   _medicManager.setUnits(medicUnits);
   _lurkerManager.setUnits(lurkerUnits);
+  _zerglingManager.setUnits(zerglingUnits);
 }
 
 // calculates whether or not to regroup
