@@ -112,6 +112,9 @@ bool ActionType::canBuild(const ActionType & t) const
     static const ActionType & Hive          = ActionTypes::GetActionType("Zerg_Hive");
     static const ActionType & Spire         = ActionTypes::GetActionType("Zerg_Spire");
     static const ActionType & GreaterSpire  = ActionTypes::GetActionType("Zerg_Greater_Spire");
+	static const ActionType & creepColony = ActionTypes::GetActionType("Zerg_Creep_Colony");
+	static const ActionType & SporeColony = ActionTypes::GetActionType("Zerg_Spore_Colony");
+	static const ActionType & SunkenColony = ActionTypes::GetActionType("Zerg_Sunken_Colony");
 
     const ActionType & whatBuilds = t.whatBuildsActionType();
 
@@ -137,6 +140,10 @@ bool ActionType::canBuild(const ActionType & t) const
         {
             return (*this == GreaterSpire);
         }
+		    else if (whatBuilds == creepColony)
+		    {
+			    return (*this == SporeColony || *this == SunkenColony);
+		    }
     }
     
     return false;
