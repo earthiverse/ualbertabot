@@ -15,12 +15,15 @@ void RangedManager::executeMicro(const BWAPI::Unitset & targets)
 
 void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
 {
-	//BWAPI::Broodwar->printf("RangedManager::assignTargetsOld");
     const BWAPI::Unitset & rangedUnits = getUnits();
 
 	// figure out targets
 	BWAPI::Unitset rangedUnitTargets;
     std::copy_if(targets.begin(), targets.end(), std::inserter(rangedUnitTargets, rangedUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible(); });
+
+	/*for (auto & target : rangedUnitTargets) {
+		BWAPI::Broodwar->drawCircleMap(target->getPosition(), 100, BWAPI::Colors::Red);
+	}*/
 
     for (auto & rangedUnit : rangedUnits)
 	{
@@ -28,55 +31,59 @@ void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
 		// train sub units such as scarabs or interceptors
 		//trainSubUnits(rangedUnit);
 
+		bool aggressive = false;
+
 		for (auto & target : rangedUnitTargets) {
-			if (rangedUnit->getDistance(target) < UnitUtil::GetAttackRange(rangedUnit, target)) {
-				if (rangedUnit->getGroundWeaponCooldown() == 0) {
-					BWAPI::Broodwar->printf("Aggressive attack");
-					Micro::SmartAttackUnit(rangedUnit, target);
-				}
+			if (rangedUnit->isInWeaponRange(target) && (rangedUnit->getGroundWeaponCooldown() == 0)) {
+				aggressive = true;
+				//BWAPI::Broodwar->drawLineMap(rangedUnit->getPosition(), target->getPosition(), BWAPI::Colors::Red);
+				Micro::SmartAttackUnit(rangedUnit, target);
 			}
 		}
 
-		// if the order is to attack or defend
-		if (order.getType() == SquadOrderTypes::Attack || order.getType() == SquadOrderTypes::Defend) 
-        {
-			// if there are targets
-			if (!rangedUnitTargets.empty())
-			{
-				// find the best target for this zealot
-				BWAPI::Unit target = getTarget(rangedUnit, rangedUnitTargets);
-                
-                if (target && Config::Debug::DrawUnitTargetInfo) 
-	            {
-		            BWAPI::Broodwar->drawLineMap(rangedUnit->getPosition(), rangedUnit->getTargetPosition(), BWAPI::Colors::Purple);
-	            }
 
-
-				// attack it
-                if (Config::Micro::KiteWithRangedUnits)
-                {
-                    if (rangedUnit->getType() == BWAPI::UnitTypes::Zerg_Mutalisk || rangedUnit->getType() == BWAPI::UnitTypes::Terran_Vulture)
-                    {
-				        Micro::MutaDanceTarget(rangedUnit, target);
-                    }
-                    else
-                    {
-                        Micro::SmartKiteTarget(rangedUnit, target);
-                    }
-                }
-                else
-                {
-                    Micro::SmartAttackUnit(rangedUnit, target);
-                }
-			}
-			// if there are no targets
-			else
+		// if the order is to attack or defsend
+		if (!aggressive) {
+			if (order.getType() == SquadOrderTypes::Attack || order.getType() == SquadOrderTypes::Defend)
 			{
-				// if we're not near the order position
-				if (rangedUnit->getDistance(order.getPosition()) > 100)
+				// if there are targets
+				if (!rangedUnitTargets.empty())
 				{
-					// move to it
-					Micro::SmartAttackMove(rangedUnit, order.getPosition());
+					// find the best target for this zealot
+					BWAPI::Unit target = getTarget(rangedUnit, rangedUnitTargets);
+
+					if (target && Config::Debug::DrawUnitTargetInfo)
+					{
+						BWAPI::Broodwar->drawLineMap(rangedUnit->getPosition(), rangedUnit->getTargetPosition(), BWAPI::Colors::Purple);
+					}
+
+
+					// attack it
+					if (Config::Micro::KiteWithRangedUnits)
+					{
+						if (rangedUnit->getType() == BWAPI::UnitTypes::Zerg_Mutalisk || rangedUnit->getType() == BWAPI::UnitTypes::Terran_Vulture)
+						{
+							Micro::MutaDanceTarget(rangedUnit, target);
+						}
+						else
+						{
+							Micro::SmartKiteTarget(rangedUnit, target);
+						}
+					}
+					else
+					{
+						Micro::SmartAttackUnit(rangedUnit, target);
+					}
+				}
+				// if there are no targets
+				else
+				{
+					// if we're not near the order position
+					if (rangedUnit->getDistance(order.getPosition()) > 100)
+					{
+						// move to it
+						Micro::SmartAttackMove(rangedUnit, order.getPosition());
+					}
 				}
 			}
 		}
