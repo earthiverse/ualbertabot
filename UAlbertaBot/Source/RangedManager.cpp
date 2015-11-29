@@ -3,11 +3,11 @@
 
 using namespace UAlbertaBot;
 
-RangedManager::RangedManager() 
-{ 
+RangedManager::RangedManager()
+{
 }
 
-void RangedManager::executeMicro(const BWAPI::Unitset & targets) 
+void RangedManager::executeMicro(const BWAPI::Unitset & targets)
 {
 	assignTargetsOld(targets);
 }
@@ -15,19 +15,19 @@ void RangedManager::executeMicro(const BWAPI::Unitset & targets)
 
 void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
 {
-    const BWAPI::Unitset & rangedUnits = getUnits();
+	const BWAPI::Unitset & rangedUnits = getUnits();
 
 	// figure out targets
 	BWAPI::Unitset rangedUnitTargets;
-    std::copy_if(targets.begin(), targets.end(), std::inserter(rangedUnitTargets, rangedUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible(); });
+	std::copy_if(targets.begin(), targets.end(), std::inserter(rangedUnitTargets, rangedUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible(); });
 
 	/*for (auto & target : rangedUnitTargets) {
-		BWAPI::Broodwar->drawCircleMap(target->getPosition(), 100, BWAPI::Colors::Red);
+	BWAPI::Broodwar->drawCircleMap(target->getPosition(), 100, BWAPI::Colors::Red);
 	}*/
 
-    for (auto & rangedUnit : rangedUnits)
+	for (auto & rangedUnit : rangedUnits)
 	{
-		
+
 		// train sub units such as scarabs or interceptors
 		//trainSubUnits(rangedUnit);
 
@@ -92,121 +92,121 @@ void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
 
 std::pair<BWAPI::Unit, BWAPI::Unit> RangedManager::findClosestUnitPair(const BWAPI::Unitset & attackers, const BWAPI::Unitset & targets)
 {
-    std::pair<BWAPI::Unit, BWAPI::Unit> closestPair(nullptr, nullptr);
-    double closestDistance = std::numeric_limits<double>::max();
+	std::pair<BWAPI::Unit, BWAPI::Unit> closestPair(nullptr, nullptr);
+	double closestDistance = std::numeric_limits<double>::max();
 
-    for (auto & attacker : attackers)
-    {
-        BWAPI::Unit target = getTarget(attacker, targets);
-        double dist = attacker->getDistance(attacker);
+	for (auto & attacker : attackers)
+	{
+		BWAPI::Unit target = getTarget(attacker, targets);
+		double dist = attacker->getDistance(attacker);
 
-        if (!closestPair.first || (dist < closestDistance))
-        {
-            closestPair.first = attacker;
-            closestPair.second = target;
-            closestDistance = dist;
-        }
-    }
+		if (!closestPair.first || (dist < closestDistance))
+		{
+			closestPair.first = attacker;
+			closestPair.second = target;
+			closestDistance = dist;
+		}
+	}
 
-    return closestPair;
+	return closestPair;
 }
 
 // get a target for the zealot to attack
 BWAPI::Unit RangedManager::getTarget(BWAPI::Unit rangedUnit, const BWAPI::Unitset & targets)
 {
 	int bestPriorityDistance = 1000000;
-    int bestPriority = 0;
-    
-    double bestLTD = 0;
+	int bestPriority = 0;
 
-    int highPriority = 0;
+	double bestLTD = 0;
+
+	int highPriority = 0;
 	double closestDist = std::numeric_limits<double>::infinity();
 	BWAPI::Unit closestTarget = nullptr;
 
-    for (const auto & target : targets)
-    {
-        double distance         = rangedUnit->getDistance(target);
-        double LTD              = UnitUtil::CalculateLTD(target, rangedUnit);
-        int priority            = getAttackPriority(rangedUnit, target);
-        bool targetIsThreat     = LTD > 0;
-        
+	for (const auto & target : targets)
+	{
+		double distance = rangedUnit->getDistance(target);
+		double LTD = UnitUtil::CalculateLTD(target, rangedUnit);
+		int priority = getAttackPriority(rangedUnit, target);
+		bool targetIsThreat = LTD > 0;
+
 		if (!closestTarget || (priority > highPriority) || (priority == highPriority && distance < closestDist))
 		{
 			closestDist = distance;
 			highPriority = priority;
 			closestTarget = target;
-		}       
-    }
+		}
+	}
 
-    return closestTarget;
+	return closestTarget;
 }
 
-	// get the attack priority of a type in relation to a zergling
-int RangedManager::getAttackPriority(BWAPI::Unit rangedUnit, BWAPI::Unit target) 
+// get the attack priority of a type in relation to a zergling
+int RangedManager::getAttackPriority(BWAPI::Unit rangedUnit, BWAPI::Unit target)
 {
 	BWAPI::UnitType rangedType = rangedUnit->getType();
 	BWAPI::UnitType targetType = target->getType();
 
-    
-    if (rangedUnit->getType() == BWAPI::UnitTypes::Zerg_Scourge)
-    {
-        if (target->getType() == BWAPI::UnitTypes::Protoss_Carrier)
-        {
-            
-            return 100;
-        }
 
-        if (target->getType() == BWAPI::UnitTypes::Protoss_Corsair)
-        {
-            return 90;
-        }
-    }
+	if (rangedUnit->getType() == BWAPI::UnitTypes::Zerg_Scourge)
+	{
+		if (target->getType() == BWAPI::UnitTypes::Protoss_Carrier)
+		{
+
+			return 100;
+		}
+
+		if (target->getType() == BWAPI::UnitTypes::Protoss_Corsair)
+		{
+			return 90;
+		}
+	}
 
 	bool isThreat = rangedType.isFlyer() ? targetType.airWeapon() != BWAPI::WeaponTypes::None : targetType.groundWeapon() != BWAPI::WeaponTypes::None;
 
-    if (target->getType().isWorker())
-    {
-        isThreat = false;
-    }
-
-    if (target->getType() == BWAPI::UnitTypes::Zerg_Larva || target->getType() == BWAPI::UnitTypes::Zerg_Egg)
-    {
-        return 0;
-    }
-
-    if (rangedUnit->isFlying() && target->getType() == BWAPI::UnitTypes::Protoss_Carrier)
-    {
-        return 101;
-    }
-
-    // if the target is building something near our base something is fishy
-    BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
-    if (target->getType().isWorker() && (target->isConstructing() || target->isRepairing()) && target->getDistance(ourBasePosition) < 1200)
-    {
-        return 100;
-    }
-
-    if (target->getType().isBuilding() && (target->isCompleted() || target->isBeingConstructed()) && target->getDistance(ourBasePosition) < 1200)
-    {
-        return 90;
-    }
-    
-	// highest priority is something that can attack us or aid in combat
-    if (targetType ==  BWAPI::UnitTypes::Terran_Bunker || isThreat)
-    {
-        return 11;
-    }
-	// next priority is worker
-	else if (targetType.isWorker()) 
+	if (target->getType().isWorker())
 	{
-        if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Vulture)
-        {
-            return 11;
-        }
-
-  		return 11;
+		isThreat = false;
 	}
-    // next is special buildings
+
+	if (target->getType() == BWAPI::UnitTypes::Zerg_Larva || target->getType() == BWAPI::UnitTypes::Zerg_Egg)
+	{
+		return 0;
+	}
+
+	if (rangedUnit->isFlying() && target->getType() == BWAPI::UnitTypes::Protoss_Carrier)
+	{
+		return 101;
+	}
+
+	// if the target is building something near our base something is fishy
+	BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
+	if (target->getType().isWorker() && (target->isConstructing() || target->isRepairing()) && target->getDistance(ourBasePosition) < 1200)
+	{
+		return 100;
+	}
+
+	if (target->getType().isBuilding() && (target->isCompleted() || target->isBeingConstructed()) && target->getDistance(ourBasePosition) < 1200)
+	{
+		return 90;
+	}
+
+	// highest priority is something that can attack us or aid in combat
+	if (targetType == BWAPI::UnitTypes::Terran_Bunker || isThreat)
+	{
+		return 11;
+	}
+	// next priority is worker
+	else if (targetType.isWorker())
+	{
+		if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Vulture)
+		{
+			return 11;
+		}
+
+		return 11;
+	}
+	// next is special buildings
 	else if (targetType == BWAPI::UnitTypes::Zerg_Spawning_Pool)
 	{
 		return 5;
@@ -246,7 +246,7 @@ BWAPI::Unit RangedManager::closestrangedUnit(BWAPI::Unit target, std::set<BWAPI:
 			closest = rangedUnit;
 		}
 	}
-	
+
 	return closest;
 }
 
@@ -254,84 +254,84 @@ BWAPI::Unit RangedManager::closestrangedUnit(BWAPI::Unit target, std::set<BWAPI:
 // still has bug in it somewhere, use Old version
 void RangedManager::assignTargetsNew(const BWAPI::Unitset & targets)
 {
-    const BWAPI::Unitset & rangedUnits = getUnits();
+	const BWAPI::Unitset & rangedUnits = getUnits();
 
 	// figure out targets
 	BWAPI::Unitset rangedUnitTargets;
-    std::copy_if(targets.begin(), targets.end(), std::inserter(rangedUnitTargets, rangedUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible(); });
+	std::copy_if(targets.begin(), targets.end(), std::inserter(rangedUnitTargets, rangedUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible(); });
 
-    BWAPI::Unitset rangedUnitsToAssign(rangedUnits);
-    std::map<BWAPI::Unit, int> attackersAssigned;
+	BWAPI::Unitset rangedUnitsToAssign(rangedUnits);
+	std::map<BWAPI::Unit, int> attackersAssigned;
 
-    for (auto & unit : rangedUnitTargets)
-    {
-        attackersAssigned[unit] = 0;
-    }
+	for (auto & unit : rangedUnitTargets)
+	{
+		attackersAssigned[unit] = 0;
+	}
 
-    // keep assigning targets while we have attackers and targets remaining
-    while (!rangedUnitsToAssign.empty() && !rangedUnitTargets.empty())
-    {
-        auto attackerAssignment = findClosestUnitPair(rangedUnitsToAssign, rangedUnitTargets);
-        BWAPI::Unit & attacker = attackerAssignment.first;
-        BWAPI::Unit & target = attackerAssignment.second;
+	// keep assigning targets while we have attackers and targets remaining
+	while (!rangedUnitsToAssign.empty() && !rangedUnitTargets.empty())
+	{
+		auto attackerAssignment = findClosestUnitPair(rangedUnitsToAssign, rangedUnitTargets);
+		BWAPI::Unit & attacker = attackerAssignment.first;
+		BWAPI::Unit & target = attackerAssignment.second;
 
-        UAB_ASSERT_WARNING(attacker, "We should have chosen an attacker!");
+		UAB_ASSERT_WARNING(attacker, "We should have chosen an attacker!");
 
-        if (!attacker)
-        {
-            break;
-        }
+		if (!attacker)
+		{
+			break;
+		}
 
-        if (!target)
-        {
-            Micro::SmartAttackMove(attacker, order.getPosition());
-            continue;
-        }
+		if (!target)
+		{
+			Micro::SmartAttackMove(attacker, order.getPosition());
+			continue;
+		}
 
-        if (Config::Micro::KiteWithRangedUnits)
-        {
-            if (attacker->getType() == BWAPI::UnitTypes::Zerg_Mutalisk || attacker->getType() == BWAPI::UnitTypes::Terran_Vulture)
-            {
-			    Micro::MutaDanceTarget(attacker, target);
-            }
-            else
-            {
-                Micro::SmartKiteTarget(attacker, target);
-            }
-        }
-        else
-        {
-            Micro::SmartAttackUnit(attacker, target);
-        }
+		if (Config::Micro::KiteWithRangedUnits)
+		{
+			if (attacker->getType() == BWAPI::UnitTypes::Zerg_Mutalisk || attacker->getType() == BWAPI::UnitTypes::Terran_Vulture)
+			{
+				Micro::MutaDanceTarget(attacker, target);
+			}
+			else
+			{
+				Micro::SmartKiteTarget(attacker, target);
+			}
+		}
+		else
+		{
+			Micro::SmartAttackUnit(attacker, target);
+		}
 
-        // update the number of units assigned to attack the target we found
-        int & assigned = attackersAssigned[attackerAssignment.second];
-        assigned++;
+		// update the number of units assigned to attack the target we found
+		int & assigned = attackersAssigned[attackerAssignment.second];
+		assigned++;
 
-        // if it's a small / fast unit and there's more than 2 things attacking it already, don't assign more
-        if ((target->getType().isWorker() || target->getType() == BWAPI::UnitTypes::Zerg_Zergling) && (assigned > 2))
-        {
-            rangedUnitTargets.erase(target);
-        }
-        // if it's a building and there's more than 10 things assigned to it already, don't assign more
-        else if (target->getType().isBuilding() && (assigned > 10))
-        {
-            rangedUnitTargets.erase(target);
-        }
+		// if it's a small / fast unit and there's more than 2 things attacking it already, don't assign more
+		if ((target->getType().isWorker() || target->getType() == BWAPI::UnitTypes::Zerg_Zergling) && (assigned > 2))
+		{
+			rangedUnitTargets.erase(target);
+		}
+		// if it's a building and there's more than 10 things assigned to it already, don't assign more
+		else if (target->getType().isBuilding() && (assigned > 10))
+		{
+			rangedUnitTargets.erase(target);
+		}
 
-        rangedUnitsToAssign.erase(attacker);
-    }
+		rangedUnitsToAssign.erase(attacker);
+	}
 
-    // if there's no targets left, attack move to the order destination
-    if (rangedUnitTargets.empty())
-    {
-        for (auto & unit : rangedUnitsToAssign)    
-        {
+	// if there's no targets left, attack move to the order destination
+	if (rangedUnitTargets.empty())
+	{
+		for (auto & unit : rangedUnitsToAssign)
+		{
 			if (unit->getDistance(order.getPosition()) > 100)
 			{
 				// move to it
 				Micro::SmartAttackMove(unit, order.getPosition());
 			}
-        }
-    }
+		}
+	}
 }
