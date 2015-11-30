@@ -15,20 +15,34 @@ void ZerglingManager::executeMicro(const BWAPI::Unitset & targets)
 	BWAPI::Unitset zerglingTargets = targets;
 
 	for (auto & zerg : zerglings) {
-		//BWAPI::Broodwar->drawCircleMap(zerg->getPosition(), 25, BWAPI::Colors::Red);
-
+		//BWAPI::Broodwar->printf("Works");
 		//TODO: Check order type? Attack or Defend?
 
 		if (zerglingUnitShouldRetreat(zerg, targets)) {
 			BWAPI::Broodwar->printf("Should retreat");
 			// TODO : Flee from closest enemy
-			BWAPI::Position fleeTo(BWAPI::Broodwar->self()->getStartLocation());
-			BWAPI::Broodwar->drawLineMap(zerg->getPosition(), fleeTo, BWAPI::Colors::Cyan);
-			Micro::SmartMove(zerg, fleeTo);
+			BWAPI::Unit closest = zerg->getClosestUnit(BWAPI::Filter::IsEnemy);
+			// Technique of retreat taken from Micro.cpp's SmartKiteTarget.
+			try {
+				BWAPI::Position fleeTo(zerg->getPosition() - closest->getPosition() + zerg->getPosition());
+				BWAPI::Broodwar->drawLineMap(zerg->getPosition(), fleeTo, BWAPI::Colors::Cyan);
+				Micro::SmartMove(zerg, fleeTo);
+			}
+			catch (...) {
+				BWAPI::Broodwar->printf("Exception!");
+			}
 		} 
 		else if (!zerglingTargets.empty()) {
 			BWAPI::Unit target = getTarget(zerg, targets);
 			Micro::SmartAttackUnit(zerg, target);
+		}
+		// No targets
+		else {
+			// Not near the order
+			if (zerg->getDistance(order.getPosition()) > 100) {
+				// Move closer (ie, regroup?
+				Micro::SmartMove(zerg, order.getPosition());
+			}
 		}
 
 	}
@@ -38,8 +52,12 @@ bool ZerglingManager::zerglingUnitShouldRetreat(BWAPI::Unit attacker, const BWAP
 	// NOTE: getting the initial hit points doesn't work....
 	int hp = attacker->getHitPoints();
 	int max_hp = attacker->getType().maxHitPoints();
-	if ((1.5) * hp < max_hp && attacker->isUnderAttack()) {
-		return true;
+	//BWAPI::Unit closest = attacker->getClosestUnit(BWAPI::Filter::IsEnemy);
+	if ((2.0) * hp < max_hp) {
+	//if ((1.5) * hp < max_hp) {
+		//if (closest->isAttacking() || closest->isStartingAttack() || closest->isAttackFrame()) {
+			return true;
+		//}
 	}
 
 	return false;

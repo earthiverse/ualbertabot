@@ -36,7 +36,8 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 				_startStack.pop();
 				overlord->move(pos);
 			}
-			else if (_startLocations.size() > 0)
+			//else if (_startLocations.size() > 0)
+			else if (_locationsStack.size() > 0)
 			{
 				BWAPI::Position pos = _locationsStack.top();
 				_locationsStack.pop();
