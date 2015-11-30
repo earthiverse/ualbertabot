@@ -8,50 +8,63 @@ LurkerManager::LurkerManager() {
 void LurkerManager::executeMicro(const BWAPI::Unitset& targets) {
   const BWAPI::Unitset& lurkers = getUnits();
 
-  int attack_range = BWAPI::UnitTypes::Zerg_Lurker.groundWeapon().maxRange();
+  const int lurker_attack_range = BWAPI::UnitTypes::Zerg_Lurker.groundWeapon().maxRange();
 
   for (auto& lurker : lurkers) {
-    BWAPI::Position lurker_position = lurker->getPosition();
-    BWAPI::Unit closest_enemy = lurker->getClosestUnit(BWAPI::Filter::IsEnemy && !BWAPI::Filter::IsFlying && BWAPI::Filter::IsVisible);
-    int enemy_distance;
-    bool enemy_can_move;
-    if (closest_enemy) {
-      enemy_distance = lurker->getDistance(closest_enemy);
-      enemy_can_move = closest_enemy->canMove();
+    // Check if lurker is okay.
+    if (!lurker || !lurker->exists() || !(lurker->getHitPoints() > 0)) {
+      continue;
     }
-    else {
-      enemy_distance = lurker->getType().sightRange();
-      enemy_can_move = false;
-    }
-    BWTA::Chokepoint* closest_choke = BWTA::getNearestChokepoint(lurker_position);
-    // TODO: What if there's no choke point?
-    // TODO: What if the choke point isn't reachable?
-    BWAPI::Position choke_position = closest_choke->getCenter();
-    int choke_distance = lurker->getDistance(choke_position);
 
     bool burrowed = lurker->isBurrowed();
 
-    size_t order_type = order.getType();
-    BWAPI::Position order_position = order.getPosition();
-
-    // Lurker might be in trouble
-    // TODO: If enemy is moving away from us, follow it instead of just burrowing.
-    if ((enemy_can_move && enemy_distance <= attack_range * 2)
-      || (!enemy_can_move && enemy_distance <= attack_range)) {
+    BWAPI::Unit closest_enemy = lurker->getClosestUnit(BWAPI::Filter::IsEnemy && !BWAPI::Filter::IsFlying, lurker_attack_range * 2);
+    if (closest_enemy != nullptr && !closest_enemy->getType().isBuilding()) {
+      // Close enemy! Burrow!
       if (!burrowed) {
-        BWAPI::Broodwar->printf("There's a close unit, I'm Burrowing!");
         lurker->burrow();
       }
       continue;
     }
+    
+    // Find closest unit and move towards it.
+    BWAPI::Position lurker_position = lurker->getPosition();
+    closest_enemy = lurker->getClosestUnit(BWAPI::Filter::IsEnemy && !BWAPI::Filter::IsFlying);
+    if (closest_enemy != nullptr) {
+      if (closest_enemy->getDistance(lurker) < lurker_attack_range) {
+        lurker->burrow();
+      }
+      else {
+        BWAPI::Position enemy_position = closest_enemy->getPosition();
+        if (enemy_position.isValid()) {
 
-    // We're on the offensive!
-    if (order_type == SquadOrderTypes::Attack || order_type == SquadOrderTypes::Defend) {
-      if (lurker->isBurrowed())
-        lurker->unburrow();
-      else
-        lurker->move(order_position);
+          // Is lurker burrowed?
+          if (burrowed) {
+            lurker->unburrow();
+            continue;
+          }
+
+          lurker->move(enemy_position);
+        }
+      }
       continue;
+    }
+
+    // No enemies anywhere on the map, apparently... find a choke point and burrow.
+    BWTA::Chokepoint* closest_choke = BWTA::getNearestChokepoint(lurker_position);
+    if (closest_choke != nullptr) {
+      if (!burrowed && lurker->getDistance(closest_choke->getCenter()) < 64) {
+        lurker->burrow();
+      }
+      else {
+        // Is lurker burrowed?
+        if (burrowed) {
+          lurker->unburrow();
+          continue;
+        }
+
+        lurker->move(closest_choke->getCenter());
+      }
     }
   }
 }
