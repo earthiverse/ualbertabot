@@ -58,6 +58,11 @@ void ZerglingManager::executeMicro(const BWAPI::Unitset & targets)
 }
 
 bool ZerglingManager::zerglingUnitShouldRetreat(BWAPI::Unit attacker, const BWAPI::Unitset & targets) {
+
+	if (targets.empty()) {
+		return false;
+	}
+
 	// NOTE: getting the initial hit points doesn't work....
 	int hp = attacker->getHitPoints();
 	int max_hp = attacker->getType().maxHitPoints();
@@ -96,6 +101,17 @@ BWAPI::Unit ZerglingManager::getTarget(BWAPI::Unit attacker, const BWAPI::Unitse
 
 int ZerglingManager::getAttackPriority(BWAPI::Unit attacker, BWAPI::Unit unit) {
 	BWAPI::UnitType type = unit->getType();
+	
+	// With Zerglings, we want to attack: hydralisks, tanks, marines, dragoons
+
+	if (type == BWAPI::UnitTypes::Zerg_Hydralisk
+		|| type == BWAPI::UnitTypes::Terran_Siege_Tank_Siege_Mode
+		|| type == BWAPI::UnitTypes::Terran_Siege_Tank_Tank_Mode
+		|| type == BWAPI::UnitTypes::Terran_Marine
+		|| type == BWAPI::UnitTypes::Protoss_Dragoon)
+	{
+		return 14;
+	}
 
 	if (attacker->getType() == BWAPI::UnitTypes::Protoss_Dark_Templar
 		&& unit->getType() == BWAPI::UnitTypes::Terran_Missile_Turret
@@ -127,6 +143,14 @@ int ZerglingManager::getAttackPriority(BWAPI::Unit attacker, BWAPI::Unit unit) {
 	else if (type.isWorker())
 	{
 		return 9;
+	}
+	// With Zerglings, we want to avoid firebats, archons, zealots, ultralisks
+	else if (type == BWAPI::UnitTypes::Terran_Firebat
+		|| type == BWAPI::UnitTypes::Protoss_Archon
+		|| type == BWAPI::UnitTypes::Protoss_Zealot
+		|| type == BWAPI::UnitTypes::Zerg_Ultralisk)
+	{
+		return 7;
 	}
 	// next is special buildings
 	else if (type == BWAPI::UnitTypes::Zerg_Spawning_Pool)
