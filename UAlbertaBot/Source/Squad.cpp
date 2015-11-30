@@ -69,9 +69,11 @@ void Squad::update()
 
 		_detectorManager.setUnitClosestToEnemy(unitClosestToEnemy());
 		_detectorManager.execute(_order);
-    _lurkerManager.execute(_order);
-	_zerglingManager.execute(_order);
-	}
+  }
+
+  // No reground commands
+  _lurkerManager.execute(_order);
+  _zerglingManager.execute(_order);
 }
 
 bool Squad::isEmpty() const
