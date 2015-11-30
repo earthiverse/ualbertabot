@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "MicroManager.h"
 #include <stack>
+#include "DetectorManager.h"
 
 namespace UAlbertaBot
 {
@@ -19,6 +20,10 @@ class OverlordManager
 	std::stack<BWAPI::Position> _startStack;
 	std::stack<BWAPI::Position> _locationsStack;
 	void moveRandomly(const BWAPI::Unit & overlord);
+	void moveToUnwalkable(const BWAPI::Unit & overlord);
+	std::vector<BWTA::Polygon*> _unwalkablepolys;
+	
+	DetectorManager _detectorManager;
 
 public:
 
