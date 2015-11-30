@@ -286,6 +286,38 @@ int CountIdealMiners(int radius = 500) {
   return num_drones;
 }
 
+int CountIdealGasThingies(int radius = 500) {
+  BWAPI::Unitset gas_thingies = BWAPI::Unitset();
+
+  BWAPI::Unitset units = BWAPI::Broodwar->self()->getUnits();
+  for (auto& unit : units) {
+    if (unit->getType().isResourceDepot()) {
+      // find near mineral patches
+      for (auto& resource : BWAPI::Broodwar->getUnitsInRadius(unit->getPosition(), radius, BWAPI::Filter::IsResourceContainer && !BWAPI::Filter::IsMineralField)) {
+        gas_thingies.insert(resource);
+      }
+    }
+  }
+
+  return gas_thingies.size() * Config::Macro::WorkersPerRefinery;
+}
+
+int CountMineralThingiesRemaining(int radius = 500) {
+  BWAPI::Unitset mineral_thingies = BWAPI::Unitset();
+
+  BWAPI::Unitset units = BWAPI::Broodwar->self()->getUnits();
+  for (auto& unit : units) {
+    if (unit->getType().isResourceDepot()) {
+      // find near mineral patches
+      for (auto& resource : BWAPI::Broodwar->getUnitsInRadius(unit->getPosition(), radius, BWAPI::Filter::IsMineralField)) {
+        mineral_thingies.insert(resource);
+      }
+    }
+  }
+
+  return mineral_thingies.size();
+}
+
 const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 {
   // the goal to return
@@ -340,6 +372,14 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
   int zerg_ground_defense_level = self->getUpgradeLevel(BWAPI::UpgradeTypes::Zerg_Carapace);
   bool is_upgrading_ground_defense = self->isUpgrading(BWAPI::UpgradeTypes::Zerg_Carapace);
 
+  bool is_overlord_speed_upgrading = self->isUpgrading(BWAPI::UpgradeTypes::Pneumatized_Carapace);
+  int has_overlord_speed = self->getUpgradeLevel(BWAPI::UpgradeTypes::Pneumatized_Carapace);
+  bool is_overlord_sight_upgrading = self->isUpgrading(BWAPI::UpgradeTypes::Antennae);
+  int has_overlord_sight = self->getUpgradeLevel(BWAPI::UpgradeTypes::Antennae);
+  bool is_overlord_carrying_upgrading = self->isUpgrading(BWAPI::UpgradeTypes::Ventral_Sacs);
+  int has_overlord_carrying = self->getUpgradeLevel(BWAPI::UpgradeTypes::Ventral_Sacs);
+  bool lair_is_researching = is_overlord_speed_upgrading || is_overlord_sight_upgrading || is_overlord_carrying_upgrading;
+
   bool researching_hydralisk_speed = self->isUpgrading(BWAPI::UpgradeTypes::Muscular_Augments);
   bool has_hydralisk_speed = self->getUpgradeLevel(BWAPI::UpgradeTypes::Muscular_Augments) == 1;
   bool researching_hydralisk_range = self->isUpgrading(BWAPI::UpgradeTypes::Grooved_Spines);
@@ -348,6 +388,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
   bool has_lurker_research = self->hasResearched(BWAPI::TechTypes::Lurker_Aspect);
   bool hydralisk_den_is_researching = researching_lurkers || researching_hydralisk_range || researching_hydralisk_speed;
   bool evolution_chamber_is_researching = is_upgrading_range_attack || is_upgrading_ground_defense || is_upgrading_melee_attack;
+
 
   // TODO: Find out number of expands with gas. (because ualberta bot only expands to those...)
   // TODO: Find out number of expands without gas.
@@ -451,49 +492,36 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
     - Previous number of drones + 1
     */
 
-    if (self->minerals() > 500 * num_mains) {
-      // IT'S HATCHERY TIME!
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries + 1));
-    }
-    if (num_hatcheries >= 3 && num_lairs == 0 && num_hives == 0) {
-      // THIS IS DANGEROUS
-      // UNTIL CHURCHILL FIXES SOME THINGS
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Lair, 1));
-    }
-
-    int num_desired_drones = std::min(CountIdealMiners(), num_drones + 1);
+    int num_desired_drones = std::min(CountIdealMiners(), num_drones + 2);
     goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, num_desired_drones));
 
     // Make sure we have a hydralisk den
-    if (num_sunkens >= 2 && !has_hydralisk_den)
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hydralisk_Den, 1));
 
-    const int max_sunkens = 10;
-    const int max_spores = 2;
-
-    // MAKE COLONIES!
-    if (num_sunkens < max_sunkens) {
-      num_desired_drones += 1;
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, num_desired_drones));
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Creep_Colony, 1));
-    }
-    if (num_sunkens >= max_sunkens && num_spores < max_spores) {
-      num_desired_drones += 1;
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, num_desired_drones));
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Creep_Colony, 1));
-    }
+    const int max_sunkens = 12;
+    const int max_spores = 3;
 
     // MAKE SUNKENS & SPORES!
-    if (num_colonys > 0 && num_sunkens < max_sunkens)
+    // Step 1: Make colonies
+    if (num_sunkens + num_spores + num_colonys < max_sunkens + max_spores) {
+      num_desired_drones += 1;
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, num_desired_drones));
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Creep_Colony, num_colonys + 1));
+    }
+    // Step 2: Make sunkens & spores
+    if (num_sunkens < max_sunkens && num_colonys > 0) {
       goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Sunken_Colony, num_sunkens + num_colonys));
-    else if (num_colonys > 0 && num_spores < max_spores)
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Spore_Colony, num_colonys + num_spores));
+    } else if (num_spores < max_spores && num_colonys > 0) {
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Sunken_Colony, num_spores + num_colonys));
+    }
 
     // MAKE HYDRAS!
+    // Step 1: Get a hydralisk den
+    if (num_sunkens >= 5 && !has_hydralisk_den)
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hydralisk_Den, 1));
+    // Step 2: Make hydras
     if (has_hydralisk_den)
       goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hydralisk, num_hydralisks + 1));
-
-    // UPGRADE HYDRAS!
+    // Step 3: Upgrade hydras
     if (num_hydralisks > 0 && has_hydralisk_den) {
       if (!has_hydralisk_speed && !hydralisk_den_is_researching) {
         goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Muscular_Augments, 1));
@@ -522,6 +550,13 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
         // Make an evolution chamber!
         goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Evolution_Chamber, 1));
       }
+
+      // Get overlord speed!
+      if (has_lair && !lair_is_researching) {
+        if (!has_overlord_speed) {
+          goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Pneumatized_Carapace, 1));
+        }
+      }
       
       if (!evolution_chamber_is_researching && zerg_range_attack_level < 1) {
         goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Zerg_Missile_Attacks, 1));
@@ -535,6 +570,26 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
       else if (!evolution_chamber_is_researching && zerg_ground_defense_level < 2 && has_lair) {
         goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Zerg_Carapace, 2));
       }
+    }
+
+    if (self->minerals() > 800 && num_drones > CountIdealMiners() / 2) {
+      // IT'S HATCHERY TIME!
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries + 1));
+      num_drones -= 2;
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, num_drones));
+    }
+    if (num_hatcheries >= 3 && num_lairs == 0 && num_hives == 0) {
+      // THIS IS DANGEROUS UNTIL CHURCHILL FIXES SOME THINGS
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Lair, 1));
+    }
+    if (CountMineralThingiesRemaining() < 3) {
+      // Minerals are running thin! Make a hatchery!
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries + 1));
+    }
+
+    // Get more gas!
+    if (CountIdealGasThingies() > num_extractors) {
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Extractor, num_extractors + 1));
     }
 
     return goal;
