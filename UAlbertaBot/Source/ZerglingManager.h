@@ -17,7 +17,4 @@ public:
 	BWAPI::Unit getTarget(BWAPI::Unit attacker, const BWAPI::Unitset & targets);
 	int getAttackPriority(BWAPI::Unit attacker, BWAPI::Unit unit);
 };
-
-
-
 }

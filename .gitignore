@@ -6,7 +6,5 @@
 *.exe
 *.o
 UAlbertaBot/UAB_ErrorLog.txt
-UAlbertaBot/UAB_ErrorLog.txt
 *.pd_
-UAlbertaBot/UAB_ErrorLog.txt
-BOSS/asset/images/units/Thumbs.db
+*Thumbs.db

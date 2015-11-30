@@ -241,9 +241,9 @@ BWAPI::TilePosition MapTools::getNextExpansion(BWAPI::Player player)
     for (BWTA::BaseLocation * base : BWTA::getBaseLocations())
     {
         // if the base is not a starting position
-        if (!(base == BWTA::getStartLocation(player)))
+        if (!base->isMineralOnly() && !(base == BWTA::getStartLocation(player)))
         {
-            // get the tile position of the base
+            // if the base has gas
             BWAPI::TilePosition tile = base->getTilePosition();
             bool buildingInTheWay = false;
 

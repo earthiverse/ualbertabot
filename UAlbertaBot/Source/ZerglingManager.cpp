@@ -153,5 +153,3 @@ int ZerglingManager::getAttackPriority(BWAPI::Unit attacker, BWAPI::Unit unit) {
 		return 1;
 	}
 }
-
-
