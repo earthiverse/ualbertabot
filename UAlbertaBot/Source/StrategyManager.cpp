@@ -294,7 +294,8 @@ int CountIdealGasThingies(int radius = 500) {
     if (unit->getType().isResourceDepot()) {
       // find near mineral patches
       for (auto& resource : BWAPI::Broodwar->getUnitsInRadius(unit->getPosition(), radius, BWAPI::Filter::IsResourceContainer && !BWAPI::Filter::IsMineralField)) {
-        gas_thingies.insert(resource);
+        if (resource->getType() == BWAPI::UnitTypes::Resource_Vespene_Geyser)
+          gas_thingies.insert(resource);
       }
     }
   }
@@ -503,15 +504,14 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
     // MAKE SUNKENS & SPORES!
     // Step 1: Make colonies
     if (num_sunkens + num_spores + num_colonys < max_sunkens + max_spores) {
-      num_desired_drones += 1;
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, num_desired_drones));
       goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Creep_Colony, num_colonys + 1));
     }
     // Step 2: Make sunkens & spores
     if (num_sunkens < max_sunkens && num_colonys > 0) {
       goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Sunken_Colony, num_sunkens + num_colonys));
-    } else if (num_spores < max_spores && num_colonys > 0) {
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Sunken_Colony, num_spores + num_colonys));
+    }
+    else if (num_spores < max_spores && num_colonys > 0) {
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Spore_Colony, num_spores + num_colonys));
     }
 
     // MAKE HYDRAS!
