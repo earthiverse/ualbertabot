@@ -62,8 +62,7 @@ bool ZerglingManager::zerglingUnitShouldRetreat(BWAPI::Unit attacker, const BWAP
 	int hp = attacker->getHitPoints();
 	int max_hp = attacker->getType().maxHitPoints();
 	//BWAPI::Unit closest = attacker->getClosestUnit(BWAPI::Filter::IsEnemy);
-	if ((2.0) * hp < max_hp) {
-	//if ((1.5) * hp < max_hp) {
+	if ((1.5) * hp < max_hp) {
 		//if (closest->isAttacking() || closest->isStartingAttack() || closest->isAttackFrame()) {
 			return true;
 		//}
@@ -154,5 +153,3 @@ int ZerglingManager::getAttackPriority(BWAPI::Unit attacker, BWAPI::Unit unit) {
 		return 1;
 	}
 }
-
-

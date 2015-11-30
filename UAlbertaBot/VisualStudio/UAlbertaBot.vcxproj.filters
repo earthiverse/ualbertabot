@@ -159,9 +159,12 @@
     <ClCompile Include="..\Source\LurkerManager.cpp">
       <Filter>game\combat\micro</Filter>
     </ClCompile>
+<<<<<<< Updated upstream
     <ClCompile Include="..\Source\ZerglingManager.cpp">
       <Filter>game\combat\micro</Filter>
     </ClCompile>
+=======
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\CombatCommander.h">
@@ -291,9 +294,12 @@
     <ClInclude Include="..\Source\LurkerManager.h">
       <Filter>game\combat\micro</Filter>
     </ClInclude>
+<<<<<<< Updated upstream
     <ClInclude Include="..\Source\ZerglingManager.h">
       <Filter>game\combat\micro</Filter>
     </ClInclude>
+=======
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

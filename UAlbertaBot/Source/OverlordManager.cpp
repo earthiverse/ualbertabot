@@ -198,4 +198,3 @@ void OverlordManager::moveRandomly(const BWAPI::Unit & overlord)
 	overlord->move(pos);
 	BWAPI::Broodwar->drawLineMap(overlord->getPosition(), pos, BWAPI::Colors::Cyan);
 }
-
