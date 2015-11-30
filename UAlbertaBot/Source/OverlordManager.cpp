@@ -33,7 +33,7 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 	for (auto & overlord : overlords) {
 
 		//moveToUnwalkable(overlord);
-		if (!_overlordScouts.contains(overlord) || !_trollLords.contains(overlord))
+		if (!_overlordScouts.contains(overlord))
 		{
 			if (_startStack.size() > 0)
 			{
