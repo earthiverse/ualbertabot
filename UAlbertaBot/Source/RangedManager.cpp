@@ -31,19 +31,7 @@ void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
 		// train sub units such as scarabs or interceptors
 		//trainSubUnits(rangedUnit);
 
-		bool aggressive = false;
-
-		for (auto & target : rangedUnitTargets) {
-			if (rangedUnit->isInWeaponRange(target) && (rangedUnit->getGroundWeaponCooldown() == 0)) {
-				aggressive = true;
-				//BWAPI::Broodwar->drawLineMap(rangedUnit->getPosition(), target->getPosition(), BWAPI::Colors::Red);
-				Micro::SmartAttackUnit(rangedUnit, target);
-			}
-		}
-
-
 		// if the order is to attack or defsend
-		if (!aggressive) {
 			if (order.getType() == SquadOrderTypes::Attack || order.getType() == SquadOrderTypes::Defend)
 			{
 				// if there are targets
@@ -86,7 +74,6 @@ void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
 					}
 				}
 			}
-		}
 	}
 }
 
