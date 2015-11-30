@@ -12,27 +12,28 @@ OverlordManager::OverlordManager()
 
 void OverlordManager::update(const BWAPI::Unitset & overlords)
 {
+	//First run
+	if (scouting == false)
+	{
+		_startLocations = BWTA::getStartLocations();
+		for (auto i : BWTA::getStartLocations())
+			_startStack.push(BWAPI::Position(i->getTilePosition()));
+		for (auto i : BWTA::getBaseLocations())
+			if (_startLocations.find(i) == _startLocations.end())
+				_locationsStack.push(BWAPI::Position(i->getTilePosition()));
+		for (auto i : BWTA::getUnwalkablePolygons())
+			_unwalkablePolys.push_back(i);
+		std::sort(_unwalkablePolys.begin(), _unwalkablePolys.end(), [](BWTA::Polygon* a, BWTA::Polygon* b) {return a->getArea() < b->getArea(); });
+		scouting = true;
+	}
+
+	
+
+	//Scouting
 	for (auto & overlord : overlords) {
 
-		if (scouting == false)
-		{
-			_startLocations = BWTA::getStartLocations();
-			for (auto i : BWTA::getStartLocations())
-				_startStack.push(BWAPI::Position(i->getTilePosition()));
-			for (auto i : BWTA::getBaseLocations())
-				if (_startLocations.find(i) == _startLocations.end())
-					_locationsStack.push(BWAPI::Position(i->getTilePosition()));
-			for (auto i : BWTA::getUnwalkablePolygons())
-			{
-				_unwalkablepolys.push_back(i);
-			}
-			std::sort(_unwalkablepolys.begin(), _unwalkablepolys.end(), [](BWTA::Polygon* a, BWTA::Polygon* b) {return a->getArea() < b->getArea(); });
-				
-			_mainOverlord = overlord;
-			scouting = true;
-		}
 		//moveToUnwalkable(overlord);
-		if (!_overlordScouts.contains(overlord))
+		if (!_overlordScouts.contains(overlord) || !_trollLords.contains(overlord))
 		{
 			if (_startStack.size() > 0)
 			{
@@ -54,12 +55,54 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 		}
 	}
 
+	int count = 0;
+	bool hasSpeed = static_cast<bool>(BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Pneumatized_Carapace));
+
+	if (hasSpeed)
+	{
+		for (auto overlord : _overlordScouts)
+		{
+			if (count % 3 == 0)
+			{
+				if (!overlord || !overlord->exists() || !(overlord->getHitPoints() > 0))
+					continue;
+				//_trollLords.insert(overlord);
+				//Find a victim
+				BWAPI::Unit baitVictim = NULL;
+				for (auto & unit : BWAPI::Broodwar->enemy()->getUnits())
+				{
+					if (unit->getType() == BWAPI::UnitTypes::Zerg_Hydralisk ||
+						unit->getType() == BWAPI::UnitTypes::Protoss_Dragoon ||
+						unit->getType() == BWAPI::UnitTypes::Terran_Marine ||
+						unit->getType() == BWAPI::UnitTypes::Protoss_Archon)
+					{
+						if (baitVictim == NULL)
+						{
+							baitVictim = unit;
+						} else
+						{
+							if (overlord->getDistance(unit->getPosition()) < overlord->getDistance(baitVictim->getPosition()))
+							{
+								baitVictim = unit;
+							}
+						}
+					}
+				}
+				//If found go bait
+				if (baitVictim != NULL) {
+					overlord->move(baitVictim->getPosition());
+					BWAPI::Broodwar->drawLineMap(overlord->getPosition(), baitVictim->getPosition(), BWAPI::Colors::Green);
+				}
+			}
+			count++;
+		}
+	}
+	
 	BWAPI::Unitset cloakedUnits;
 	BWAPI::Unitset overlordDetectors;
-	// figure out targets
+	//Cloaked units
 	for (auto & unit : BWAPI::Broodwar->enemy()->getUnits())
 	{
-		// conditions for targeting
 		if (unit->getType() == BWAPI::UnitTypes::Zerg_Lurker ||
 			unit->getType() == BWAPI::UnitTypes::Protoss_Dark_Templar ||
 			unit->getType() == BWAPI::UnitTypes::Terran_Wraith)
@@ -67,21 +110,23 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 			cloakedUnits.insert(unit);
 		}
 	}
-
+	//Go find cloaked units
 	for (auto cloakUnit : cloakedUnits)
 	{
 		BWAPI::Unit closest = *_overlordScouts.begin();
 		for (auto overlord : _overlordScouts)
 		{
+			if (!overlord || !overlord->exists() || !(overlord->getHitPoints() > 0))
+				continue;
 			BWAPI::Position p = overlord->getPosition();
 			BWAPI::Position c = closest->getPosition();
 			if (c.getDistance(cloakUnit->getPosition()) > p.getDistance(cloakUnit->getPosition()))
-			{
 				closest = overlord;
-			}
 		}
 		closest->move(cloakUnit->getPosition());
+		BWAPI::Broodwar->drawLineMap(closest->getPosition(), cloakUnit->getPosition(), BWAPI::Colors::Cyan);
 	}
+
 
 	for (auto overlord : _overlordScouts)
 	{
@@ -94,7 +139,7 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 		{
 			if (UnitUtil::CanAttackAir(unit))
 			{
-				BWAPI::Position fleePosition(overlord->getPosition() - unit->getPosition() +overlord->getPosition());
+				BWAPI::Position fleePosition(overlord->getPosition() - unit->getPosition() + overlord->getPosition());
 				BWAPI::Broodwar->drawLineMap(overlord->getPosition(), fleePosition, BWAPI::Colors::Cyan);
 				overlord->move(fleePosition);
 			}
@@ -112,9 +157,7 @@ void OverlordManager::moveToUnwalkable(const BWAPI::Unit & overlord)
 	for (auto i : polys)
 	{
 		if (poly->getArea() < i->getArea())
-		{
 			poly = i;
-		}
 		/*auto prev = *((*i).begin());
 		for (auto next : *i)
 		{
@@ -125,8 +168,8 @@ void OverlordManager::moveToUnwalkable(const BWAPI::Unit & overlord)
 			prev = next;
 		}*/
 	}
-	int ran = rand() % (_unwalkablepolys.size()-1);
-	poly = _unwalkablepolys[ran];
+	int ran = rand() % (_unwalkablePolys.size()-1);
+	poly = _unwalkablePolys[ran];
 	/*auto prev = *((*poly).begin());
 	for (auto next : *poly)
 	{

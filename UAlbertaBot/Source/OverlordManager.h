@@ -10,7 +10,7 @@ namespace UAlbertaBot
 class OverlordManager
 {	
 	BWAPI::Unitset _overlordScouts;
-	std::map<BWAPI::Unit, BWAPI::Position> _overlordpos;
+	BWAPI::Unitset _trollLords;
 	bool scouting = false;
 	BWAPI::Unit _mainOverlord;
 	std::vector<BWAPI::Position> _possibleBases;
@@ -21,7 +21,7 @@ class OverlordManager
 	std::stack<BWAPI::Position> _locationsStack;
 	void moveRandomly(const BWAPI::Unit & overlord);
 	void moveToUnwalkable(const BWAPI::Unit & overlord);
-	std::vector<BWTA::Polygon*> _unwalkablepolys;
+	std::vector<BWTA::Polygon*> _unwalkablePolys;
 	
 	DetectorManager _detectorManager;
 
