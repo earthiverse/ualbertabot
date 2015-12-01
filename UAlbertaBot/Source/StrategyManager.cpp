@@ -493,18 +493,18 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
     - Previous number of drones + 1
     */
 
-    int num_desired_drones = std::min(CountIdealMiners(), num_drones + 2);
+    int num_desired_drones = std::min(CountIdealMiners(), num_drones + 1);
     goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, num_desired_drones));
 
     // Make sure we have a hydralisk den
 
-    const int max_sunkens = 12;
+    const int max_sunkens = 9;
     const int max_spores = 3;
 
     // MAKE SUNKENS & SPORES!
     // Step 1: Make colonies
     if (num_sunkens + num_spores + num_colonys < max_sunkens + max_spores) {
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Creep_Colony, num_colonys + 1));
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Creep_Colony, 1));
     }
     // Step 2: Make sunkens & spores
     if (num_sunkens < max_sunkens && num_colonys > 0) {
@@ -544,7 +544,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
       }
     }
 
-    if (self->minerals() > 1000 && self->gas() > 250 && num_hydralisks > 10) {
+    if (num_hydralisks > 14) {
       // Upgrade some things!
       if (!has_evolution_chamber) {
         // Make an evolution chamber!
@@ -572,13 +572,13 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
       }
     }
 
-    if (self->minerals() > 800 && num_drones > CountIdealMiners() / 2) {
+	// If we have enough drones and we haven't expanded in a while
+	if (num_drones > CountIdealMiners() - 6 && num_mains * 240 < second && num_hydralisks > 4 * num_mains
+		|| num_lurkers > pow(2, num_mains)) {
       // IT'S HATCHERY TIME!
       goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries + 1));
-      num_drones -= 2;
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, num_drones));
     }
-    if (num_hatcheries >= 3 && num_lairs == 0 && num_hives == 0) {
+    if (num_hatcheries >= 2 && num_lairs == 0 && num_hives == 0) {
       // THIS IS DANGEROUS UNTIL CHURCHILL FIXES SOME THINGS
       goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Lair, 1));
     }
@@ -588,7 +588,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
     }
 
     // Get more gas!
-    if (CountIdealGasThingies() > num_extractors) {
+    if (CountIdealGasThingies() > num_extractors && second > 600) {
       goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Extractor, num_extractors + 1));
     }
 

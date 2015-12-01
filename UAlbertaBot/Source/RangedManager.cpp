@@ -161,6 +161,11 @@ int RangedManager::getAttackPriority(BWAPI::Unit rangedUnit, BWAPI::Unit target)
 		return 0;
 	}
 
+	if (target->getType() == BWAPI::UnitTypes::Protoss_Observer || target->getType() == BWAPI::UnitTypes::Terran_Science_Vessel)
+	{
+		return 100;
+	}
+
 	if (rangedUnit->isFlying() && target->getType() == BWAPI::UnitTypes::Protoss_Carrier)
 	{
 		return 101;

@@ -17,11 +17,12 @@ bool UnitUtil::IsCombatUnit(BWAPI::Unit unit)
     }
 
     // check for various types of combat units
-    if (unit->getType().canAttack() || 
+    if ((unit->getType().canAttack() || 
         unit->getType() == BWAPI::UnitTypes::Terran_Medic ||
         unit->getType() == BWAPI::UnitTypes::Protoss_High_Templar ||
-        unit->getType() == BWAPI::UnitTypes::Protoss_Observer /*||
-        unit->isFlying() && unit->getType().spaceProvided() > 0*/)
+        unit->getType() == BWAPI::UnitTypes::Protoss_Observer ||
+        unit->isFlying() && unit->getType().spaceProvided() > 0) && 
+		unit->getType() != BWAPI::UnitTypes::Zerg_Overlord)
     {
         return true;
     }
