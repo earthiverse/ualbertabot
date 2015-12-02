@@ -80,7 +80,7 @@
     {
         "Protoss"                   : "Protoss_DTRush",
         "Terran"                    : "Terran_MarineRush",
-        "Zerg"                      : "GreedyHydras",
+        "Zerg"                      : "Sunkens",
         
         "ScoutGasSteal"             : false,
         "ScoutHarassEnemy"          : true,
@@ -91,6 +91,7 @@
         "UseEnemySpecificStrategy"  : true,
         "EnemySpecificStrategy"     :
         {
+	    "ProtossKing"           : { "Protoss" : "Protoss_ZealotRush", "Terran" : "Terran_VultureRush", "Zerg" : "GreedyHydras" },
             "BotName1"              : { "Protoss" : "Protoss_ZealotRush", "Terran" : "Terran_VultureRush", "Zerg" : "Zerg_ZerglingRush" },
             "BotName2"              : { "Protoss" : "Protoss_DragoonRush", "Terran" : "Terran_MarineRush", "Zerg" : "Zerg_ZerglingRush" },
             "LetaBot"               : { "Protoss" : "Protoss_ZealotRush", "Terran" : "Terran_4RaxMarines", "Zerg" : "Zerg_ZerglingRush" }
@@ -112,7 +113,7 @@
             "Zerg_3HatchMuta"       : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Overlord", "Drone", "Drone", "Drone", "Drone", "Hatchery", "Drone", "Drone", "Spawning_Pool", "Drone", "Drone", "Extractor", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone","Lair", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Spire", "Overlord", "Drone", "Overlord", "Hatchery", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Hatchery"]},
             "Zerg_3HatchScourge"    : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Overlord", "Drone", "Drone", "Drone", "Drone", "Hatchery", "Drone", "Drone", "Spawning_Pool", "Drone", "Drone", "Extractor", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone","Lair", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Spire", "Overlord", "Drone", "Overlord", "Hatchery", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Hatchery", "Drone", "Extractor", "Drone", "Hatchery", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Hatchery", "Extractor", "Extractor", "Hatchery"]},
 			"Sunkens"               : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Creep Colony", "Spawning Pool", "Drone", "Drone", "Sunken Colony", "Creep Colony", "Sunken Colony", "Creep Colony", "Sunken Colony", "Drone", "Drone", "Drone", "Drone"] },
-			"GreedyHydras"         : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Drone", "Overlord", "Hatchery", "Drone", "Drone","Drone", "Spawning Pool", "Drone", "Drone", "Extractor", "Drone", "Drone"] },
+			"GreedyHydras"          : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Drone", "Overlord", "Hatchery", "Drone", "Drone","Drone", "Spawning Pool", "Drone", "Drone", "Extractor", "Drone", "Drone"] },
 			"Lurkers"               : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone",  "Drone", "Spawning Pool", "Drone", "Overlord", "Drone", "Drone", "Drone", "Extractor", "Drone", "Drone", "Drone", "Drone", "Lair", "Drone", "Drone", "Drone", "Hydralisk Den", "Drone", "Drone"] },
 			"4Pool"                 : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Spawning_Pool", "Zergling", "Zergling", "Zergling", "Zergling", "Zergling", "Zergling"] }
         }

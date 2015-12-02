@@ -592,7 +592,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
     || (num_drones > CountIdealMiners() - 6 && num_mains * 300 < second && num_hydralisks > 4 * num_mains)
 		|| (num_lurkers > pow(2, num_mains))) {
       // IT'S HATCHERY TIME!
-    goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries * 2));
+    goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries + 1));
     goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Lair, num_lairs));
     goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hive, num_hives));
     }
