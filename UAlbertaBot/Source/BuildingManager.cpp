@@ -420,18 +420,18 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
         return BuildingPlacer::Instance().getRefineryPosition();
     }
 
-    if (b.type.isResourceDepot())
+	if (b.type.isResourceDepot())
     {
       // get the location
       // Make every other base for zerg a macro hatch.
       bool is_macro = false;
-      if (BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Zerg) {
+	  if (BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Zerg) {
         int num_mains = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hatchery) + UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Lair) + UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hive);
         if (num_mains % 2 == 1)
           is_macro = true;
       }
 
-      if (!is_macro) {
+	  if (!is_macro || Config::Strategy::StrategyName == "GreedyHydras") {
         BWAPI::TilePosition tile = MapTools::Instance().getNextExpansion();
         return tile;
       }

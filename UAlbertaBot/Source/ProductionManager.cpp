@@ -107,7 +107,7 @@ void ProductionManager::update()
 
 		_enemyCloakedDetected = true;
 	}
-	if (BWAPI::Broodwar->self()->minerals() > (1000 + 300 * _macroHatchCount))
+	if (BWAPI::Broodwar->self()->minerals() > (1500 + 300 * _macroHatchCount))
 	{
 		++_macroHatchCount;
 		_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Zerg_Hatchery), true);
