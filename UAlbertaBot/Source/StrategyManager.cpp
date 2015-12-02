@@ -390,7 +390,6 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
   bool hydralisk_den_is_researching = researching_lurkers || researching_hydralisk_range || researching_hydralisk_speed;
   bool evolution_chamber_is_researching = is_upgrading_range_attack || is_upgrading_ground_defense || is_upgrading_melee_attack;
 
-
   // TODO: Find out number of expands with gas. (because ualberta bot only expands to those...)
   // TODO: Find out number of expands without gas.
 
@@ -493,6 +492,20 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
     - Previous number of drones + 1
     */
 
+    // MAYBE THIS WILL SAVE US UNTIL CHURCHILL FIXES BUGS?
+    BWAPI::Unitset units = BWAPI::Broodwar->self()->getUnits();
+    int num_morphing = 0;
+    for (auto& unit : units) {
+      if (unit->getType() == BWAPI::UnitTypes::Zerg_Hatchery && unit->isMorphing()) {
+        num_morphing++;
+      }
+    }
+    if (num_hatcheries == num_morphing) {
+      // BUILD ANOTHER ONE. QUICK.
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries + 1));
+      return goal;
+    }
+
     int num_desired_drones = std::min(CountIdealMiners(), num_drones + 1);
     goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, num_desired_drones));
 
@@ -516,7 +529,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 
     // MAKE HYDRAS!
     // Step 1: Get a hydralisk den
-    if (num_sunkens >= 5 && !has_hydralisk_den)
+    if (num_sunkens >= 8 && !has_hydralisk_den)
       goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hydralisk_Den, 1));
     // Step 2: Make hydras
     if (has_hydralisk_den)
@@ -573,18 +586,28 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
     }
 
 	// If we have enough drones and we haven't expanded in a while
-	if (num_drones > CountIdealMiners() - 6 && num_mains * 240 < second && num_hydralisks > 4 * num_mains
-		|| num_lurkers > pow(2, num_mains)) {
+    if ((num_mains == 1 && second > 360)
+    || (num_drones > CountIdealMiners() - 6 && num_mains * 300 < second && num_hydralisks > 4 * num_mains)
+		|| (num_lurkers > pow(2, num_mains))) {
       // IT'S HATCHERY TIME!
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries + 1));
+    goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries * 2));
+    goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Lair, num_lairs));
+    goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hive, num_hives));
     }
     if (num_hatcheries >= 2 && num_lairs == 0 && num_hives == 0) {
       // THIS IS DANGEROUS UNTIL CHURCHILL FIXES SOME THINGS
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, 1));
       goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Lair, 1));
     }
+    // NOTE: There's a good reason why not, haha. I made an issue on Churchill's github.
+    // Overlord upgrades don't work from hive.
+    //else if (num_hatcheries >= 1 && num_lairs >= 1 && num_hives == 0 && minerals > 1000 && gas > 500) {
+    //  // WHY NOT!?
+    //  goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hive, 1));
+    //}
     if (CountMineralThingiesRemaining() < 3) {
       // Minerals are running thin! Make a hatchery!
-      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries + 1));
+      goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_mains + 1));
     }
 
     // Get more gas!
