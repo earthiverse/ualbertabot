@@ -172,9 +172,9 @@ void Squad::addUnitsToMicroManagers()
       else if (unit->getType() == BWAPI::UnitTypes::Zerg_Lurker) {
         lurkerUnits.insert(unit);
       }
-	  else if (unit->getType() == BWAPI::UnitTypes::Zerg_Zergling) {
+	  /*else if (unit->getType() == BWAPI::UnitTypes::Zerg_Zergling) {
 		  zerglingUnits.insert(unit);
-	  }
+	  }*/
       // Detectors
 			else if (unit->getType().isDetector() && !unit->getType().isBuilding())
 			{
