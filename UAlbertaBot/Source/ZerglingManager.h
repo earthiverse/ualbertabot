@@ -16,5 +16,7 @@ public:
 	bool zerglingUnitShouldRetreat(BWAPI::Unit attacker, const BWAPI::Unitset & targets);
 	BWAPI::Unit getTarget(BWAPI::Unit attacker, const BWAPI::Unitset & targets);
 	int getAttackPriority(BWAPI::Unit attacker, BWAPI::Unit unit);
+	BWAPI::Position getRetreatPosition(BWAPI::Unit attacker, BWAPI::Unitset & targets);
+	double getVectorLength(double x, double y);
 };
 }

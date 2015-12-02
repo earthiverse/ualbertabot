@@ -177,3 +177,43 @@ int ZerglingManager::getAttackPriority(BWAPI::Unit attacker, BWAPI::Unit unit) {
 		return 1;
 	}
 }
+
+BWAPI::Position getRetreatPosition(BWAPI::Unit attacker, BWAPI::Unitset & targets) {
+
+	if (targets.empty()) {
+		return;
+	}
+
+	BWAPI::Broodwar->drawCircleMap(attacker->getPosition(), 400, BWAPI::Colors::Red);
+
+	double retreatVector_x = 0.0;
+	double retreatVector_y = 0.0;
+
+	for (auto & target : targets) {
+
+		// ignore far away targets
+		if (attacker->getDistance(target) > 400) {
+			continue;
+		}
+		BWAPI::Broodwar->drawLineMap(attacker->getPosition(), target->getPosition(), BWAPI::Colors::Red);
+		double target_x = attacker->getPosition().x - target->getPosition().x;
+		double target_y = attacker->getPosition().y - target->getPosition().y;
+		double target_length = getVectorLength(target_x, target_y);
+
+		// make vector a unit vector
+		target_x /= target_length;
+		target_y /= target_length;
+
+		retreatVector_x += target_x;
+		retreatVector_y += target_y;
+	}
+
+	BWAPI::Position retreatPosition((retreatVector_x * 100) + attacker->getPosition().x, (retreatVector_y * 100) + attacker->getPosition().y);
+	BWAPI::Broodwar->drawLineMap(attacker->getPosition(), retreatPosition, BWAPI::Colors::Green);
+
+	return retreatPosition;
+}
+
+double getVectorLength(double x, double y) {
+	return sqrt((x*x) + (y*y));
+}
