@@ -27,8 +27,6 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 		scouting = true;
 	}
 
-	
-
 	//Scouting
 	for (auto & overlord : overlords) {
 
@@ -56,8 +54,9 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 	}
 
 	int count = 0;
-	bool hasSpeed = static_cast<bool>(BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Pneumatized_Carapace));
+	int hasSpeed = (BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Pneumatized_Carapace));
 
+	//If has speed go bait units to follow it
 	if (hasSpeed)
 	{
 		for (auto overlord : _overlordScouts)
@@ -66,11 +65,11 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 			{
 				if (!overlord || !overlord->exists() || !(overlord->getHitPoints() > 0))
 					continue;
-				//_trollLords.insert(overlord);
 				//Find a victim
 				BWAPI::Unit baitVictim = NULL;
 				for (auto & unit : BWAPI::Broodwar->enemy()->getUnits())
 				{
+					//Units good for baiting
 					if (unit->getType() == BWAPI::UnitTypes::Zerg_Hydralisk ||
 						unit->getType() == BWAPI::UnitTypes::Protoss_Dragoon ||
 						unit->getType() == BWAPI::UnitTypes::Terran_Marine ||
@@ -82,9 +81,7 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 						} else
 						{
 							if (overlord->getDistance(unit->getPosition()) < overlord->getDistance(baitVictim->getPosition()))
-							{
 								baitVictim = unit;
-							}
 						}
 					}
 				}
@@ -113,6 +110,7 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 	//Go find cloaked units
 	for (auto cloakUnit : cloakedUnits)
 	{
+		//Send Closest Overlord to cloaked unit
 		BWAPI::Unit closest = *_overlordScouts.begin();
 		for (auto overlord : _overlordScouts)
 		{
@@ -127,7 +125,7 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 		BWAPI::Broodwar->drawLineMap(closest->getPosition(), cloakUnit->getPosition(), BWAPI::Colors::Cyan);
 	}
 
-
+	//Run from enemy units
 	for (auto overlord : _overlordScouts)
 	{
 		if (!overlord || !overlord->exists() || !(overlord->getHitPoints() > 0))
@@ -150,35 +148,11 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 
 
 }
+
 void OverlordManager::moveToUnwalkable(const BWAPI::Unit & overlord)
 {
-	auto polys = BWTA::getUnwalkablePolygons();
-	auto poly = *polys.begin();
-	for (auto i : polys)
-	{
-		if (poly->getArea() < i->getArea())
-			poly = i;
-		/*auto prev = *((*i).begin());
-		for (auto next : *i)
-		{
-
-			BWAPI::Position p(prev.x * 8, prev.y * 8);
-			BWAPI::Position n(next.x * 8, next.y * 8);
-			BWAPI::Broodwar->drawLineMap(p, n, BWAPI::Colors::Green);
-			prev = next;
-		}*/
-	}
 	int ran = rand() % (_unwalkablePolys.size()-1);
-	poly = _unwalkablePolys[ran];
-	/*auto prev = *((*poly).begin());
-	for (auto next : *poly)
-	{
-
-		BWAPI::Position p(prev.x * 8, prev.y * 8);
-		BWAPI::Position n(next.x * 8, next.y * 8);
-		BWAPI::Broodwar->drawLineMap(p, n, BWAPI::Colors::Red);
-		prev = next;
-	}*/
+	auto poly = _unwalkablePolys[ran];
 	BWAPI::Position gohere(poly->getCenter().x * -8, poly->getCenter().y * -8);
 	//BWAPI::Broodwar->drawTextScreen(200, 200, "POLY CENTER X: %d Y:%d",gohere.x,gohere.y);
 	overlord->move(gohere);
