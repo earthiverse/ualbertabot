@@ -2,10 +2,11 @@
 
 using namespace UAlbertaBot;
 
-ProductionManager::ProductionManager() 
-	: _assignedWorkerForThisBuilding (false)
-	, _haveLocationForThisBuilding   (false)
-	, _enemyCloakedDetected          (false)
+ProductionManager::ProductionManager()
+	: _assignedWorkerForThisBuilding(false)
+	, _haveLocationForThisBuilding(false)
+	, _enemyCloakedDetected(false)
+	, _macroHatchCount(0)
 {
     setBuildOrder(StrategyManager::Instance().getOpeningBookBuildOrder());
 }
@@ -105,6 +106,11 @@ void ProductionManager::update()
         }
 
 		_enemyCloakedDetected = true;
+	}
+	if (BWAPI::Broodwar->self()->minerals() > (1000 + 300 * _macroHatchCount))
+	{
+		++_macroHatchCount;
+		_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Zerg_Hatchery), true);
 	}
 }
 

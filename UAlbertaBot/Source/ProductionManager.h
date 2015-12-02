@@ -20,7 +20,8 @@ class ProductionManager
     bool                _enemyCloakedDetected;
     bool                _assignedWorkerForThisBuilding;
     bool                _haveLocationForThisBuilding;
-    
+	int					_macroHatchCount;
+
     BWAPI::Unit         getClosestUnitToPosition(const BWAPI::Unitset & units,BWAPI::Position closestTo);
     BWAPI::Unit         selectUnitOfType(BWAPI::UnitType type,BWAPI::Position closestTo = BWAPI::Position(0,0));
 
