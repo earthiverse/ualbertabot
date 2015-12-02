@@ -23,22 +23,8 @@ void ZerglingManager::executeMicro(const BWAPI::Unitset & targets)
 		//TODO: Check order type? Attack or Defend?
 
 		if (zerglingUnitShouldRetreat(zerg, targets)) {
-			BWAPI::Broodwar->printf("Should retreat");
-			// TODO : Flee from closest enemy
-			//BWAPI::Unit closest = zerg->getClosestUnit(BWAPI::Filter::IsEnemy);
-			BWAPI::Unit target = getTarget(zerg, targets);
-			if (!target || !target->exists() || !(target->getHitPoints() > 0)) {
-				continue;
-			}
-
-			// Technique of retreat taken from Micro.cpp's SmartKiteTarget.
-			try {
-				BWAPI::Position fleeTo(zerg->getPosition() - target->getPosition() + zerg->getPosition());
-				BWAPI::Broodwar->drawLineMap(zerg->getPosition(), fleeTo, BWAPI::Colors::Cyan);
-				Micro::SmartMove(zerg, fleeTo);
-			}
-			catch (...) {
-				BWAPI::Broodwar->printf("Exception!");
+			if (!targets.empty()) {
+				Micro::SmartMove(zerg, getRetreatPosition(zerg , targets));
 			}
 		} 
 		else if (!zerglingTargets.empty()) {
@@ -67,7 +53,7 @@ bool ZerglingManager::zerglingUnitShouldRetreat(BWAPI::Unit attacker, const BWAP
 	int hp = attacker->getHitPoints();
 	int max_hp = attacker->getType().maxHitPoints();
 	//BWAPI::Unit closest = attacker->getClosestUnit(BWAPI::Filter::IsEnemy);
-	if ((1.5) * hp < max_hp) {
+	if ((1.25) * hp < max_hp) {
 		//if (closest->isAttacking() || closest->isStartingAttack() || closest->isAttackFrame()) {
 			return true;
 		//}
@@ -176,4 +162,48 @@ int ZerglingManager::getAttackPriority(BWAPI::Unit attacker, BWAPI::Unit unit) {
 	{
 		return 1;
 	}
+}
+
+// Idea is to find the direction that is most away from the nearest enemy units.
+BWAPI::Position ZerglingManager::getRetreatPosition(BWAPI::Unit attacker, const BWAPI::Unitset & targets) {
+
+	BWAPI::Broodwar->drawCircleMap(attacker->getPosition(), 400, BWAPI::Colors::Red);
+
+	// Units get stuck in corners. Corners not usually by chokes. Maybe if we can see that we are far in corner,
+	// away from choke, we should head to choke, then hopefully get into the open again.
+	/*if (!unitNearChokepoint(attacker)) {
+		return ;
+	}*/
+
+	double retreatVector_x = 0.0;
+	double retreatVector_y = 0.0;
+
+	for (auto & target : targets) {
+
+		// ignore far away targets
+		if (attacker->getDistance(target) > 400) {
+			continue;
+		}
+		BWAPI::Broodwar->drawLineMap(attacker->getPosition(), target->getPosition(), BWAPI::Colors::Red);
+		double target_x = attacker->getPosition().x - target->getPosition().x;
+		double target_y = attacker->getPosition().y - target->getPosition().y;
+		double target_length = getVectorLength(target_x, target_y);
+
+		// make vector a unit vector
+		target_x /= target_length;
+		target_y /= target_length;
+
+		// add vectors up
+		retreatVector_x += target_x;
+		retreatVector_y += target_y;
+	}
+
+	BWAPI::Position retreatPosition((int)(retreatVector_x * 50) + attacker->getPosition().x, ((int)retreatVector_y * 50) + attacker->getPosition().y);
+	BWAPI::Broodwar->drawLineMap(attacker->getPosition(), retreatPosition, BWAPI::Colors::Green);
+
+	return retreatPosition;
+}
+
+double ZerglingManager::getVectorLength(double x, double y) {
+	return sqrt((x*x) + (y*y));
 }
