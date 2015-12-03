@@ -4,8 +4,10 @@ Load solution into and compile.
 
 --- Functions that were changed ---
 
-For a visual/flashier representation, please see the following:
-https://github.com/davechurchill/ualbertabot/compare/master...earthiverse:master#diff-4e93374cc0a9cc3d1a3bd80f85fe9112
+For a visual/flashier representation, please see the following and look at the "Files changed":
+https://github.com/davechurchill/ualbertabot/compare/master...earthiverse:master
+
+The following is up to date as of commit d08773c08c4058637e5bb35c6d6da35f92179c9b.
 
 BOSS/source/ActionType.cpp
   canBuild()
@@ -61,6 +63,7 @@ UAlbertaBot/Source/RangedManager.cpp
 UAlbertaBot/Source/Squad.cpp
   Squad::update()
   Squad::isEmpty()
+  Squad::addUnitsToMicroManagers()
 UAlbertaBot/Source/Squad.h
   include statements
   class Squad
