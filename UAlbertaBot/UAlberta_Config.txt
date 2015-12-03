@@ -80,7 +80,7 @@
     {
         "Protoss"                   : "Protoss_DTRush",
         "Terran"                    : "Terran_MarineRush",
-        "Zerg"                      : "Sunkens",
+        "Zerg"                      : "GreedyHydras",
         
         "ScoutGasSteal"             : false,
         "ScoutHarassEnemy"          : true,

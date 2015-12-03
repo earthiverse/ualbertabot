@@ -531,7 +531,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 
     // MAKE HYDRAS!
     // Step 1: Get a hydralisk den
-    if (num_sunkens >= 8 && !has_hydralisk_den)
+	if ((num_sunkens >= 8 && !has_hydralisk_den) || (!has_hydralisk_den && Config::Strategy::StrategyName == "GreedyHydras"))
       goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hydralisk_Den, 1));
     // Step 2: Make hydras
     if (has_hydralisk_den)
@@ -590,7 +590,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 	// If we have enough drones and we haven't expanded in a while
     if ((num_mains == 1 && second > 360)
     || (num_drones > CountIdealMiners() - 6 && num_mains * 300 < second && num_hydralisks > 4 * num_mains)
-		|| (num_lurkers > pow(2, num_mains))) {
+	|| (num_lurkers > pow(2, num_mains))) {
       // IT'S HATCHERY TIME!
     goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hatchery, num_hatcheries + 1));
     goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Lair, num_lairs));
