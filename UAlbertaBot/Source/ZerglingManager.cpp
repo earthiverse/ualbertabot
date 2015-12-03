@@ -167,7 +167,7 @@ int ZerglingManager::getAttackPriority(BWAPI::Unit attacker, BWAPI::Unit unit) {
 // Idea is to find the direction that is most away from the nearest enemy units.
 BWAPI::Position ZerglingManager::getRetreatPosition(BWAPI::Unit attacker, const BWAPI::Unitset & targets) {
 
-	BWAPI::Broodwar->drawCircleMap(attacker->getPosition(), 400, BWAPI::Colors::Red);
+	//BWAPI::Broodwar->drawCircleMap(attacker->getPosition(), 400, BWAPI::Colors::Red);
 
 	// Units get stuck in corners. Corners not usually by chokes. Maybe if we can see that we are far in corner,
 	// away from choke, we should head to choke, then hopefully get into the open again.
@@ -184,7 +184,7 @@ BWAPI::Position ZerglingManager::getRetreatPosition(BWAPI::Unit attacker, const 
 		if (attacker->getDistance(target) > 400) {
 			continue;
 		}
-		BWAPI::Broodwar->drawLineMap(attacker->getPosition(), target->getPosition(), BWAPI::Colors::Red);
+		//BWAPI::Broodwar->drawLineMap(attacker->getPosition(), target->getPosition(), BWAPI::Colors::Red);
 		double target_x = attacker->getPosition().x - target->getPosition().x;
 		double target_y = attacker->getPosition().y - target->getPosition().y;
 		double target_length = getVectorLength(target_x, target_y);
@@ -199,7 +199,7 @@ BWAPI::Position ZerglingManager::getRetreatPosition(BWAPI::Unit attacker, const 
 	}
 
 	BWAPI::Position retreatPosition((int)(retreatVector_x * 50) + attacker->getPosition().x, ((int)retreatVector_y * 50) + attacker->getPosition().y);
-	BWAPI::Broodwar->drawLineMap(attacker->getPosition(), retreatPosition, BWAPI::Colors::Green);
+	//BWAPI::Broodwar->drawLineMap(attacker->getPosition(), retreatPosition, BWAPI::Colors::Green);
 
 	return retreatPosition;
 }
