@@ -47,7 +47,7 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 			} 
 			else
 			{
-				moveToUnwalkable(overlord);
+				moveRandomly(overlord);
 			}
 			_overlordScouts.insert(overlord);
 		}
@@ -61,7 +61,7 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 	{
 		for (auto overlord : _overlordScouts)
 		{
-			if (count % 3 == 0)
+			if (count % 4 == 0)
 			{
 				if (!overlord || !overlord->exists() || !(overlord->getHitPoints() > 0))
 					continue;
@@ -143,7 +143,7 @@ void OverlordManager::update(const BWAPI::Unitset & overlords)
 			}
 		}
 		if (!overlord->isMoving())
-			moveToUnwalkable(overlord);
+			moveRandomly(overlord);
 	}
 
 
